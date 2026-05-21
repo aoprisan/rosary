@@ -521,6 +521,35 @@
   opacity: 0.85;
   transition: stroke-dasharray 80ms linear;
 }
+/* A gauge hugging the knob: a faint full track shows the turn a bead costs,
+   and the cinnabar fill grows to meet it as the stick is circled. */
+.ring__gauge {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+}
+.ring__gauge circle {
+  fill: none;
+  stroke-linecap: round;
+}
+.ring__gauge-track {
+  stroke: var(--ink-faint);
+  stroke-width: 1.6;
+  opacity: 0.45;
+}
+.ring__gauge-fill {
+  stroke: var(--rubric);
+  stroke-width: 2.6;
+  transition: stroke-dasharray 80ms linear, stroke var(--dur-fast);
+}
+/* A full turn glows bright the instant before the bead is told. */
+.ring__gauge-fill.is-full {
+  stroke: var(--rubric-bright);
+}
 .ring__center {
   pointer-events: none;
   position: absolute;
