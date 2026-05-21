@@ -3,6 +3,7 @@ import { t } from '../i18n/strings';
 import { loc } from '../i18n/loc';
 import { PRAYERS } from '../data/prayers';
 import { LangSelector } from './LangSelector';
+import { Ornament, Cross } from './Ornament';
 
 const PRESETS = [33, 50, 100];
 
@@ -29,17 +30,17 @@ export function SetupScreen({
 
   return (
     <div className="setup">
-      <header className="masthead">
-        <div className="masthead__brand">
-          <span className="masthead__cross" aria-hidden="true">
-            ✝
-          </span>
-          <div>
-            <h1 className="masthead__title">{t('appTitle', lang)}</h1>
-            <p className="masthead__subtitle">{t('appSubtitle', lang)}</p>
-          </div>
-        </div>
+      <div className="runninghead">
+        <Cross className="runninghead__mark" />
+        <span className="runninghead__label">{t('bookLabel', lang)}</span>
         <LangSelector lang={lang} onChange={onLangChange} />
+      </div>
+
+      <header className="masthead">
+        <Ornament variant="headpiece" />
+        <h1 className="masthead__title">{t('appTitle', lang)}</h1>
+        <p className="masthead__subtitle">{t('appSubtitle', lang)}</p>
+        <p className="incipit">{t('incipit', lang)}</p>
       </header>
 
       <section className="panel">
@@ -90,8 +91,11 @@ export function SetupScreen({
                   aria-pressed={selected}
                   onClick={() => onPrayer(p.id)}
                 >
-                  <span className="prayer-option__name">{loc(p.name, lang)}</span>
-                  <span className="prayer-option__kind">{loc(p.kind, lang)}</span>
+                  <span className="prayer-option__line">
+                    <span className="prayer-option__name">{loc(p.name, lang)}</span>
+                    <span className="prayer-option__leader" aria-hidden="true" />
+                    <span className="prayer-option__kind">{loc(p.kind, lang)}</span>
+                  </span>
                   <span className="prayer-option__preview">{firstLine}</span>
                 </button>
               </li>
@@ -101,6 +105,7 @@ export function SetupScreen({
       </section>
 
       <button type="button" className="begin-btn" onClick={onBegin}>
+        <Cross />
         {t('begin', lang)}
       </button>
     </div>

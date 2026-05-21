@@ -5,6 +5,8 @@ type Dict = Record<string, string>;
 const en: Dict = {
   appTitle: 'Rosary',
   appSubtitle: 'A virtual prayer rope',
+  bookLabel: 'A Book of Hours',
+  incipit: 'In the name of the Father, and of the Son, and of the Holy Spirit.',
   english: 'English',
   romanian: 'Română',
 
@@ -36,6 +38,8 @@ const en: Dict = {
 const ro: Dict = {
   appTitle: 'Metanier',
   appSubtitle: 'Un șirag de rugăciune',
+  bookLabel: 'Ceaslov',
+  incipit: 'În numele Tatălui și al Fiului și al Sfântului Duh.',
   english: 'English',
   romanian: 'Română',
 

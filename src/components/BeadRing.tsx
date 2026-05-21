@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import type React from 'react';
 import type { Lang } from '../types';
 import { t } from '../i18n/strings';
+import { Cross } from './Ornament';
 
 interface Props {
   count: number;
@@ -149,7 +150,7 @@ export function BeadRing({ count, activeIndex, lang, onStep, onJump }: Props) {
         </button>
         {beads}
         <span className="ring__cross" aria-hidden="true">
-          ✝
+          <Cross />
         </span>
       </div>
     </div>

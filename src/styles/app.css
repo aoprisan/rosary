@@ -1,161 +1,265 @@
 /* ─────────────────────────────────────────────────────────────────────
-   Layout shell
+   The leaf — a single page of the Ceaslov, laid on a dark lectern.
    ───────────────────────────────────────────────────────────────────── */
 .app {
   position: relative;
   z-index: 0;
   display: flex;
   flex-direction: column;
-  max-width: 720px;
+  max-width: 660px;
   min-height: 100vh;
   margin: 0 auto;
-  padding: clamp(1rem, 4vw, 2.5rem) clamp(1rem, 4vw, 2rem) 2rem;
+  padding: clamp(1.75rem, 6vw, 3.25rem) clamp(1.5rem, 6vw, 3.25rem)
+    clamp(1.5rem, 4vw, 2.5rem);
+  color: var(--ink);
+  background-color: var(--paper);
+  background-image: var(--paper-grain),
+    radial-gradient(ellipse 80% 60% at 50% 18%, rgba(255, 248, 226, 0.55), transparent 60%),
+    radial-gradient(ellipse 125% 90% at 50% 45%, transparent 56%, rgba(120, 86, 40, 0.16));
+  background-size: 200px 200px, auto, auto;
+  background-blend-mode: multiply, screen, normal;
+  box-shadow: var(--shadow-page);
 }
 
-.footer {
-  margin-top: auto;
-  padding-top: var(--space-8);
-  text-align: center;
-  font-family: var(--font-accent);
-  font-style: italic;
-  color: var(--parchment-shadow);
-  font-size: 0.85rem;
+/* A printed double-rule frame, set behind the text. */
+.app::before,
+.app::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+  border-style: solid;
+}
+.app::after {
+  inset: clamp(8px, 2.2vw, 16px);
+  border-width: 1.4px;
+  border-color: var(--ink-faint);
+}
+.app::before {
+  inset: clamp(13px, 3vw, 23px);
+  border-width: 0.7px;
+  border-color: rgba(36, 26, 16, 0.2);
+}
+
+@media (min-width: 760px) {
+  .app {
+    margin: clamp(1.5rem, 4vh, 3rem) auto;
+    min-height: calc(100vh - clamp(3rem, 8vh, 6rem));
+  }
+}
+
+/* ── Crosses & ornament inks ─────────────────────────────────────────── */
+.cross {
+  display: inline-block;
+  width: 0.72em;
+  height: auto;
+  vertical-align: -0.08em;
+}
+.ornament {
+  display: block;
+  height: auto;
+}
+.ornament--headpiece {
+  width: min(100%, 360px);
+  margin: 0 auto var(--space-3);
+}
+.ornament--rule {
+  width: min(58%, 230px);
+  margin: var(--space-5) auto;
+}
+.orn-stroke {
+  fill: none;
+  stroke: var(--rubric);
+  stroke-width: 2.1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.orn-stroke-bold {
+  fill: none;
+  stroke: var(--rubric);
+  stroke-width: 3.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.orn-ink {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1;
+  opacity: 0.45;
+}
+.orn-leaf {
+  fill: var(--rubric);
+  stroke: none;
+}
+.orn-dot-ink {
+  fill: var(--ink);
+}
+.orn-dot-gold {
+  fill: var(--gold);
 }
 
 /* ─────────────────────────────────────────────────────────────────────
-   Masthead + language selector
+   Running head + language selector
    ───────────────────────────────────────────────────────────────────── */
-.masthead {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-4);
-  margin-bottom: var(--space-8);
-  animation: rise var(--dur-slow) var(--ease-out-quint) both;
-}
-
-.masthead__brand {
+.runninghead {
   display: flex;
   align-items: center;
   gap: var(--space-3);
+  padding-bottom: var(--space-3);
+  margin-bottom: var(--space-5);
+  border-bottom: 1px solid var(--ink-faint);
+  animation: ink-in var(--dur-slow) var(--ease-out-quint) both;
 }
-
-.masthead__cross {
-  font-size: 2.1rem;
-  color: var(--gold-bright);
-  text-shadow: var(--shadow-gold);
+.runninghead__mark {
+  color: var(--rubric);
+  width: 0.9em;
 }
-
-.masthead__title {
-  font-family: var(--font-decorative);
-  font-size: clamp(1.7rem, 6vw, 2.5rem);
-  color: var(--gold-bright);
-  letter-spacing: 0.05em;
-  line-height: 1;
-}
-
-.masthead__subtitle {
-  margin: 0.25rem 0 0;
-  font-family: var(--font-accent);
-  font-style: italic;
-  color: var(--parchment-shadow);
+.runninghead__label {
+  flex: 1;
+  min-width: 0;
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.26em;
+  font-size: 0.78rem;
+  color: var(--ink-soft);
 }
 
 .lang-selector {
   display: inline-flex;
   flex: 0 0 auto;
-  border: 1px solid rgba(201, 162, 39, 0.4);
+  border: 1px solid var(--ink-faint);
   border-radius: var(--radius);
   overflow: hidden;
 }
-
 .lang-selector button {
-  padding: 0.4rem 0.75rem;
-  font-family: var(--font-display);
-  font-size: 0.8rem;
-  letter-spacing: 0.1em;
-  color: var(--parchment-shadow);
+  padding: 0.3rem 0.62rem;
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.14em;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
   transition: background var(--dur-fast), color var(--dur-fast);
 }
-
+.lang-selector button + button {
+  border-left: 1px solid var(--ink-faint);
+}
 .lang-selector button[aria-pressed='true'] {
-  background: radial-gradient(circle at 50% 0%, var(--gold-bright), var(--gold-leaf));
-  color: var(--ink);
+  background: var(--rubric);
+  color: var(--paper-bright);
 }
 
 /* ─────────────────────────────────────────────────────────────────────
-   Setup screen
+   Masthead (title page)
+   ───────────────────────────────────────────────────────────────────── */
+.masthead {
+  text-align: center;
+  margin-bottom: var(--space-8);
+  animation: ink-in var(--dur-slow) var(--ease-out-quint) 80ms both;
+}
+.masthead__title {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 11vw, 3.8rem);
+  line-height: 0.96;
+  color: var(--rubric);
+  letter-spacing: 0.015em;
+}
+.masthead__subtitle {
+  margin: var(--space-2) 0 0;
+  font-style: italic;
+  font-size: 1.08rem;
+  color: var(--ink-soft);
+}
+.incipit {
+  max-width: 32ch;
+  margin: var(--space-4) auto 0;
+  font-style: italic;
+  font-size: 0.96rem;
+  line-height: 1.5;
+  color: var(--rubric);
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   Setup — sections as text blocks (no boxes)
    ───────────────────────────────────────────────────────────────────── */
 .panel {
-  margin-bottom: var(--space-5);
-  padding: var(--space-5);
-  border: 1px solid rgba(201, 162, 39, 0.22);
-  border-radius: var(--radius);
-  background: linear-gradient(160deg, rgba(243, 231, 201, 0.06), rgba(243, 231, 201, 0.015));
-  box-shadow: var(--shadow-vellum);
-  animation: rise var(--dur-slow) var(--ease-out-quint) both;
+  margin-bottom: var(--space-8);
+  animation: ink-in var(--dur-slow) var(--ease-out-quint) both;
 }
 .panel:nth-of-type(2) {
-  animation-delay: 80ms;
+  animation-delay: 120ms;
 }
 
 .panel__heading {
-  font-family: var(--font-display);
-  font-size: 1.2rem;
-  color: var(--parchment);
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-family: var(--font-body);
+  font-variant-caps: small-caps;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  font-size: 1.4rem;
+  color: var(--rubric);
 }
-
+.panel__heading::before {
+  content: '';
+  flex: 0 0 auto;
+  width: 0.46em;
+  height: 0.46em;
+  background: var(--rubric);
+  transform: rotate(45deg);
+}
 .panel__hint {
-  margin: 0.25rem 0 var(--space-4);
+  margin: 0.3rem 0 var(--space-5) 1.15rem;
   font-style: italic;
-  color: var(--parchment-shadow);
+  color: var(--ink-soft);
 }
 
+/* Bead-count chips */
 .chips {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-3);
 }
-
 .chip {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0.1rem;
-  min-width: 88px;
+  min-width: 86px;
   padding: var(--space-3) var(--space-4);
-  border: 1px solid rgba(201, 162, 39, 0.35);
+  border: 1px solid var(--ink-faint);
   border-radius: var(--radius);
-  background: rgba(0, 0, 0, 0.25);
-  color: var(--parchment);
-  transition: border-color var(--dur-fast), box-shadow var(--dur-fast),
-    background var(--dur-fast), color var(--dur-fast);
-}
-
-.chip[data-selected] {
-  border-color: var(--gold-bright);
-  background: radial-gradient(circle at 50% 0%, var(--gold-bright), var(--gold-leaf) 75%);
+  background: var(--paper-shade);
   color: var(--ink);
-  box-shadow: var(--shadow-gold);
+  transition: border-color var(--dur-fast), color var(--dur-fast),
+    background var(--dur-fast), box-shadow var(--dur-fast);
 }
-
+.chip:hover {
+  border-color: var(--ink-soft);
+}
+.chip[data-selected] {
+  border-color: var(--rubric);
+  color: var(--rubric);
+  background: var(--rubric-wash);
+  box-shadow: inset 0 0 0 1px var(--rubric);
+}
 .chip__num {
-  font-family: var(--font-display);
-  font-size: 1.5rem;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 1.7rem;
   line-height: 1;
+  font-feature-settings: 'lnum' 1;
 }
-
 .chip__unit {
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  opacity: 0.85;
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.16em;
+  font-size: 0.72rem;
+  color: var(--ink-soft);
 }
-
+.chip[data-selected] .chip__unit {
+  color: var(--rubric);
+}
 .chip--custom {
   cursor: text;
 }
-
 .chip--custom input {
   width: 76px;
   margin-top: 0.1rem;
@@ -164,9 +268,11 @@
   border-bottom: 1px solid currentColor;
   background: transparent;
   color: inherit;
-  font-family: var(--font-display);
-  font-size: 1.5rem;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 1.7rem;
   text-align: center;
+  font-feature-settings: 'lnum' 1;
   -moz-appearance: textfield;
 }
 .chip--custom input::-webkit-outer-spin-button,
@@ -178,80 +284,115 @@
   outline: none;
 }
 
+/* Prayer index — set as a table of contents with dotted leaders */
 .prayer-list {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
   margin: 0;
   padding: 0;
   list-style: none;
 }
-
 .prayer-option {
-  display: grid;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
   width: 100%;
   text-align: left;
-  gap: 0.1rem;
-  padding: var(--space-3) var(--space-4);
-  border: 1px solid rgba(201, 162, 39, 0.25);
-  border-radius: var(--radius);
-  background: rgba(0, 0, 0, 0.22);
-  transition: border-color var(--dur-fast), box-shadow var(--dur-fast),
-    background var(--dur-fast);
+  padding: var(--space-3) var(--space-2) var(--space-3) 1.5rem;
+  border: none;
+  border-bottom: 1px solid var(--ink-faint);
+  background: transparent;
+  transition: background var(--dur-fast);
 }
-
+.prayer-list li:first-child .prayer-option {
+  border-top: 1px solid var(--ink-faint);
+}
+.prayer-option::before {
+  content: '';
+  position: absolute;
+  left: 0.2rem;
+  top: 1.4rem;
+  width: 0.42em;
+  height: 0.42em;
+  background: var(--ink-faint);
+  transform: rotate(45deg);
+  transition: background var(--dur-fast);
+}
+.prayer-option:hover {
+  background: rgba(120, 86, 40, 0.06);
+}
 .prayer-option[data-selected] {
-  border-color: var(--gold-bright);
-  background: linear-gradient(120deg, rgba(201, 162, 39, 0.18), rgba(201, 162, 39, 0.05));
-  box-shadow: var(--shadow-gold);
+  background: var(--rubric-wash);
+}
+.prayer-option[data-selected]::before {
+  background: var(--rubric);
 }
 
+.prayer-option__line {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.4rem;
+}
 .prayer-option__name {
-  font-family: var(--font-display);
-  font-size: 1.05rem;
-  color: var(--gold-pale);
+  font-family: var(--font-body);
+  font-size: 1.18rem;
+  color: var(--ink);
 }
 .prayer-option[data-selected] .prayer-option__name {
-  color: var(--gold-bright);
+  color: var(--rubric);
+  font-weight: 600;
 }
-
+.prayer-option__leader {
+  flex: 1;
+  height: 0;
+  margin-bottom: 0.3em;
+  border-bottom: 1.5px dotted var(--ink-faint);
+}
 .prayer-option__kind {
-  font-size: 0.68rem;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  color: var(--parchment-shadow);
+  flex: 0 0 auto;
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.12em;
+  font-size: 0.74rem;
+  color: var(--rubric);
 }
-
 .prayer-option__preview {
-  margin-top: 0.15rem;
   font-style: italic;
-  color: var(--parchment);
+  font-size: 1rem;
+  color: var(--ink-soft);
 }
 
+/* Begin — a printed seal */
 .begin-btn {
-  display: block;
-  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  align-self: center;
   margin-top: var(--space-4);
-  padding: var(--space-4);
-  border: none;
+  padding: var(--space-3) var(--space-8);
+  border: 1.5px solid var(--rubric);
   border-radius: var(--radius);
-  font-family: var(--font-decorative);
+  box-shadow: inset 0 0 0 0.5px var(--rubric);
+  font-family: var(--font-body);
+  font-variant-caps: all-small-caps;
   font-size: 1.2rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: var(--ink);
-  background: radial-gradient(
-    circle at 50% 0%,
-    var(--gold-highlight),
-    var(--gold-leaf) 60%,
-    var(--gold-deep)
-  );
-  box-shadow: var(--shadow-gold), var(--shadow-altar);
-  transition: transform var(--dur-fast) var(--ease-out-quint), filter var(--dur-fast);
-  animation: rise var(--dur-slow) var(--ease-out-quint) 160ms both;
+  letter-spacing: 0.18em;
+  color: var(--rubric);
+  background: transparent;
+  transition: background var(--dur-fast), color var(--dur-fast),
+    transform var(--dur-fast) var(--ease-out-quint);
+  animation: ink-in var(--dur-slow) var(--ease-out-quint) 220ms both;
+}
+.begin-btn .cross {
+  width: 0.85em;
 }
 .begin-btn:hover {
-  filter: brightness(1.06);
+  background: var(--rubric);
+  color: var(--paper-bright);
+}
+.begin-btn:hover .orn-stroke-bold {
+  stroke: var(--paper-bright);
 }
 .begin-btn:active {
   transform: scale(0.98);
@@ -263,59 +404,61 @@
 .session {
   display: flex;
   flex-direction: column;
-  animation: rise var(--dur-base) var(--ease-out-quint) both;
+  animation: ink-in var(--dur-base) var(--ease-out-quint) both;
 }
-
 .session__bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
+  padding-bottom: var(--space-3);
   margin-bottom: var(--space-2);
+  border-bottom: 1px solid var(--ink-faint);
 }
-
 .session__meta {
   flex: 1;
-  text-align: center;
   min-width: 0;
+  text-align: center;
 }
-
 .session__prayer {
   display: block;
-  font-family: var(--font-display);
-  font-size: 1.05rem;
-  color: var(--gold-pale);
+  font-family: var(--font-body);
+  font-variant-caps: small-caps;
+  letter-spacing: 0.06em;
+  font-size: 1.15rem;
+  color: var(--rubric);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-
 .session__progress {
-  font-size: 0.8rem;
-  letter-spacing: 0.06em;
-  color: var(--parchment-shadow);
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.12em;
+  font-size: 0.78rem;
+  color: var(--ink-soft);
 }
-
 .ghost-btn {
   flex: 0 0 auto;
-  padding: 0.4rem 0.7rem;
-  border: 1px solid rgba(201, 162, 39, 0.3);
+  padding: 0.32rem 0.62rem;
+  border: 1px solid var(--ink-faint);
   border-radius: var(--radius);
-  font-family: var(--font-display);
-  font-size: 0.8rem;
-  color: var(--parchment);
-  transition: background var(--dur-fast);
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.1em;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  transition: border-color var(--dur-fast), color var(--dur-fast);
 }
 .ghost-btn:hover {
-  background: rgba(201, 162, 39, 0.12);
+  border-color: var(--ink-soft);
+  color: var(--ink);
 }
 
 .session__flash {
-  min-height: 1.4rem;
+  min-height: 1.5rem;
+  margin-top: var(--space-3);
   text-align: center;
-  font-family: var(--font-accent);
   font-style: italic;
-  color: var(--gold-bright);
+  color: var(--rubric);
   opacity: 0;
   transition: opacity var(--dur-base);
 }
@@ -323,16 +466,15 @@
   opacity: 1;
 }
 
-/* ── The prayer rope ─────────────────────────────────────────────── */
+/* ── The prayer rope (komboskini), inked on the page ─────────────────── */
 .ring-wrap {
   display: flex;
   justify-content: center;
-  margin: var(--space-2) 0 var(--space-6);
+  margin: var(--space-4) 0 var(--space-8);
 }
-
 .ring {
   position: relative;
-  width: min(82vw, 400px);
+  width: min(80vw, 380px);
   aspect-ratio: 1;
   touch-action: none;
   cursor: grab;
@@ -343,11 +485,10 @@
   cursor: grabbing;
 }
 .ring:focus-visible {
-  outline: 2px solid var(--gold-bright);
-  outline-offset: 8px;
+  outline: 1.5px solid var(--rubric);
+  outline-offset: 10px;
   border-radius: 50%;
 }
-
 .ring__cord {
   position: absolute;
   inset: 0;
@@ -357,55 +498,52 @@
 }
 .ring__cord circle {
   fill: none;
-  stroke: rgba(201, 162, 39, 0.4);
+  stroke: var(--ink-faint);
   stroke-width: 0.5;
-  stroke-dasharray: 0.4 1.6;
+  stroke-dasharray: 0.35 1.9;
   stroke-linecap: round;
 }
-
 .ring__center {
   position: absolute;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: 46%;
-  height: 46%;
+  width: 47%;
+  height: 47%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  border: 1px solid rgba(201, 162, 39, 0.28);
-  background: radial-gradient(circle at 50% 32%, rgba(58, 15, 23, 0.55), rgba(34, 8, 16, 0.85));
-  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.55);
+  border: 1px solid var(--ink-faint);
+  background: radial-gradient(circle at 50% 38%, var(--paper-bright), var(--paper-shade) 92%);
+  box-shadow: var(--shadow-press);
   transition: box-shadow var(--dur-fast);
 }
 .ring__center:hover {
-  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.55), var(--shadow-gold);
+  box-shadow: var(--shadow-press), 0 0 0 1px var(--rubric);
 }
-
 .ring__count {
-  font-family: var(--font-display);
-  font-size: clamp(2rem, 9vw, 3.1rem);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: clamp(2rem, 9vw, 3rem);
   line-height: 1;
-  color: var(--gold-bright);
+  color: var(--rubric);
+  font-feature-settings: 'lnum' 1;
 }
-
 .ring__total {
   margin-top: 0.2rem;
-  font-size: 0.85rem;
-  letter-spacing: 0.08em;
-  color: var(--parchment-shadow);
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.12em;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
 }
-
 .ring__cross {
   position: absolute;
   left: 50%;
   top: 100%;
-  transform: translate(-50%, -10%);
-  font-size: 1.7rem;
-  color: var(--gold-pale);
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+  transform: translate(-50%, 2%);
+  width: 1.5rem;
   pointer-events: none;
 }
 .ring__cross::before {
@@ -415,122 +553,152 @@
   bottom: 100%;
   width: 1px;
   height: 0.7rem;
-  background: rgba(201, 162, 39, 0.5);
+  background: var(--ink-faint);
   transform: translateX(-50%);
 }
 
+/* Knots of the rope — inked beads, the told one in cinnabar */
 .bead {
   position: absolute;
   transform: translate(-50%, -50%);
   border-radius: 50%;
   padding: 0;
-  background: radial-gradient(
-    circle at 35% 30%,
-    var(--gold-highlight),
-    var(--gold-leaf) 55%,
-    var(--gold-deep)
-  );
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5), inset 0 -1px 2px rgba(0, 0, 0, 0.35);
+  background: radial-gradient(circle at 38% 32%, #5a4a32, var(--ink) 72%);
+  box-shadow: 0 0.5px 1px rgba(0, 0, 0, 0.4);
   transition: transform var(--dur-fast) var(--ease-out-quint);
 }
 .bead:hover {
-  transform: translate(-50%, -50%) scale(1.18);
+  transform: translate(-50%, -50%) scale(1.2);
 }
 .bead[data-active] {
   z-index: 3;
   transform: translate(-50%, -50%) scale(1.55);
-  background: radial-gradient(circle at 35% 30%, #fff7d6, var(--gold-bright) 50%, var(--gold-leaf));
-  outline: 2px solid rgba(246, 225, 152, 0.55);
-  outline-offset: 2px;
-  animation: bead-pulse 2.6s var(--ease-in-out-sine) infinite;
+  background: radial-gradient(circle at 38% 32%, var(--rubric-bright), var(--rubric) 58%, var(--rubric-deep));
+  outline: 1px solid var(--rubric);
+  outline-offset: 3px;
+  animation: tell 2.6s var(--ease-in-out-sine) infinite;
 }
 
 .spin-hint {
-  margin: 0 0 var(--space-5);
+  margin: 0 0 var(--space-6);
   text-align: center;
   font-style: italic;
-  font-size: 0.85rem;
-  color: var(--parchment-shadow);
+  font-size: 0.92rem;
+  color: var(--ink-soft);
 }
 
-/* ── Prayer text card ────────────────────────────────────────────── */
+/* ── Prayer text — a rubricated, illuminated passage ─────────────────── */
 .prayer-card {
-  padding: var(--space-6) var(--space-5);
   text-align: center;
-  border: 1px solid rgba(201, 162, 39, 0.25);
-  border-radius: var(--radius);
-  background: linear-gradient(160deg, rgba(243, 231, 201, 0.07), rgba(243, 231, 201, 0.02));
-  box-shadow: var(--shadow-vellum);
+  padding: var(--space-2) var(--space-2) 0;
 }
-
 .prayer-card__title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
   margin-bottom: var(--space-4);
-  font-family: var(--font-decorative);
+  font-family: var(--font-body);
+  font-variant-caps: small-caps;
+  letter-spacing: 0.07em;
   font-size: 1.3rem;
-  color: var(--gold-pale);
+  color: var(--rubric);
 }
-
+.prayer-card__title .cross {
+  width: 0.82em;
+}
 .prayer-card__text {
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
+  gap: 0.18rem;
+  max-width: 38ch;
+  margin: 0 auto;
 }
-
 .prayer-card__line {
   font-family: var(--font-body);
-  font-size: clamp(1.15rem, 3.6vw, 1.45rem);
+  font-size: clamp(1.2rem, 3.5vw, 1.52rem);
   line-height: 1.5;
-  color: var(--ivory);
+  color: var(--ink);
+}
+/* The illuminated initial: a versal opening the prayer. */
+.prayer-card__line:first-child::first-letter {
+  font-family: var(--font-display);
+  font-size: 2em;
+  line-height: 0.7;
+  color: var(--rubric);
+  padding-right: 0.05em;
+  text-shadow: 1px 1px 0 rgba(181, 138, 48, 0.55);
+}
+.prayer-card::after {
+  content: '';
+  display: block;
+  width: 0.5em;
+  height: 0.5em;
+  margin: var(--space-5) auto 0;
+  background: var(--rubric);
+  transform: rotate(45deg);
+  opacity: 0.7;
 }
 
-/* ── Controls ────────────────────────────────────────────────────── */
+/* ── Controls ────────────────────────────────────────────────────────── */
 .controls {
   display: flex;
   gap: var(--space-3);
-  margin-top: var(--space-5);
+  margin-top: var(--space-6);
 }
-
 .control-btn {
   flex: 1;
   padding: var(--space-3) var(--space-4);
-  border: 1px solid rgba(201, 162, 39, 0.4);
+  border: 1px solid var(--ink-faint);
   border-radius: var(--radius);
-  font-family: var(--font-display);
-  font-size: 0.95rem;
-  letter-spacing: 0.05em;
-  color: var(--parchment);
-  background: rgba(0, 0, 0, 0.25);
-  transition: background var(--dur-fast), transform var(--dur-fast);
+  font-family: var(--font-body);
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.12em;
+  font-size: 1rem;
+  color: var(--ink);
+  background: var(--paper-shade);
+  transition: border-color var(--dur-fast), background var(--dur-fast),
+    color var(--dur-fast), transform var(--dur-fast);
 }
 .control-btn:hover {
-  background: rgba(201, 162, 39, 0.14);
+  border-color: var(--ink-soft);
+  background: var(--paper-bright);
 }
 .control-btn:active {
   transform: scale(0.97);
 }
-
 .control-btn--reset {
   flex: 0 0 auto;
-  color: var(--parchment-shadow);
+  color: var(--ink-soft);
 }
-
 .control-btn--next {
-  border-color: var(--gold-bright);
-  color: var(--ink);
-  background: radial-gradient(circle at 50% 0%, var(--gold-bright), var(--gold-leaf) 80%);
+  border-color: var(--rubric);
+  color: var(--rubric);
 }
 .control-btn--next:hover {
-  filter: brightness(1.06);
-  background: radial-gradient(circle at 50% 0%, var(--gold-bright), var(--gold-leaf) 80%);
+  background: var(--rubric);
+  color: var(--paper-bright);
+  border-color: var(--rubric);
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   Colophon
+   ───────────────────────────────────────────────────────────────────── */
+.footer {
+  margin-top: auto;
+  text-align: center;
+  font-style: italic;
+  font-size: 0.92rem;
+  color: var(--ink-soft);
 }
 
 /* ─────────────────────────────────────────────────────────────────────
    Keyframes
    ───────────────────────────────────────────────────────────────────── */
-@keyframes rise {
+@keyframes ink-in {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(6px);
   }
   to {
     opacity: 1;
@@ -538,12 +706,14 @@
   }
 }
 
-@keyframes bead-pulse {
+@keyframes tell {
   0%,
   100% {
-    box-shadow: 0 0 10px 1px rgba(232, 197, 82, 0.55);
+    box-shadow: 0 0 0 0 rgba(157, 42, 25, 0);
+    outline-color: rgba(157, 42, 25, 0.5);
   }
   50% {
-    box-shadow: 0 0 22px 5px rgba(232, 197, 82, 0.95);
+    box-shadow: 0 0 10px 2px rgba(157, 42, 25, 0.4);
+    outline-color: rgba(157, 42, 25, 0.95);
   }
 }

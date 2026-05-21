@@ -5,7 +5,11 @@ session bead by bead — spin the beads with your finger, tap them, or use the
 buttons. Bilingual: **English** and **Română**.
 
 Sibling to the [Orthodox Calendar](../orthodox) app; it shares the same
-React + Vite + TypeScript stack and Byzantine visual language.
+React + Vite + TypeScript stack. The interface is set like a leaf from an
+Orthodox *Ceaslov* (Book of Hours): warm laid paper printed in two inks —
+iron-gall black for the body, cinnabar red for the rubrics — with a
+hand-drawn frontispiece, a three-bar cross, and an illuminated initial
+opening each prayer.
 
 ## Features
 
@@ -13,8 +17,8 @@ React + Vite + TypeScript stack and Byzantine visual language.
 - **Choose a prayer** — the Jesus Prayer, the Lord's Prayer, the Theotokion,
   the Trisagion, or the Glory Be. One prayer is said on each bead.
 - **A spinnable ring** — drag a finger around the rope to tick through beads,
-  tap a bead to jump, tap the centre (or use ←/→) to advance. The active bead
-  glows like a vigil lamp; completed circuits are counted.
+  tap a bead to jump, tap the centre (or use ←/→) to advance. The told bead
+  is inked in cinnabar; completed circuits are counted.
 - **Bilingual** — every prayer and label is provided in English and Romanian;
   the choice is remembered between visits.
 - Progress, language, bead count, and prayer choice persist in `localStorage`.
@@ -25,8 +29,8 @@ React + Vite + TypeScript stack and Byzantine visual language.
 
 - [React 18](https://react.dev/) + TypeScript
 - [Vite 5](https://vitejs.dev/)
-- Hand-rolled CSS with design tokens (no UI framework), shared palette with the
-  Orthodox Calendar
+- Hand-rolled CSS with design tokens (no UI framework) — a two-ink prayer-book
+  palette, with EB Garamond + Uncial Antiqua type and hand-drawn SVG ornaments
 - Custom, dependency-free i18n (`src/i18n/`)
 - [vite-plugin-pwa](https://vite-pwa-org.netlify.app/) for the manifest +
   service worker. Icons are generated from `public/icon.svg`.
@@ -64,10 +68,11 @@ src/
     strings.ts            # UI strings (en / ro) + t()
     loc.ts                # resolve a { en, ro } value for the active language
   components/
-    SetupScreen.tsx       # bead-count + prayer pickers
+    SetupScreen.tsx       # bead-count + prayer pickers (title page + index)
     SessionScreen.tsx     # session state, progress, circuit counting
     BeadRing.tsx          # the interactive, spinnable prayer rope
     PrayerCard.tsx        # the prayer text for the active language
+    Ornament.tsx          # hand-drawn SVG headpiece, divider rule, and cross
     LangSelector.tsx      # EN / RO toggle
   styles/
     tokens.css            # palette, typography, motion, background

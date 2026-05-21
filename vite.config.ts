@@ -17,8 +17,8 @@ export default defineConfig({
         description:
           'A virtual prayer rope — choose the beads, pick a prayer, and pray bead by bead. English & Română.',
         lang: 'en',
-        theme_color: '#220810',
-        background_color: '#220810',
+        theme_color: '#1a120b',
+        background_color: '#1a120b',
         display: 'standalone',
         orientation: 'portrait',
         // Project-page paths: scope and entry both live under /rosary/.

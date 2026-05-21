@@ -4,6 +4,7 @@ import { SetupScreen } from './components/SetupScreen';
 import { SessionScreen } from './components/SessionScreen';
 import { DEFAULT_PRAYER_ID } from './data/prayers';
 import { t } from './i18n/strings';
+import { Ornament } from './components/Ornament';
 
 const LANG_KEY = 'rosary:lang';
 const BEADS_KEY = 'rosary:beads';
@@ -60,6 +61,7 @@ export function App() {
           onExit={() => setScreen('setup')}
         />
       )}
+      <Ornament variant="rule" />
       <footer className="footer">{t('footer', lang)}</footer>
     </div>
   );
