@@ -28,15 +28,18 @@ const MAX_THROW_PCT = 9;
  * The prayer rope: beads arranged on a circle, told with a joystick at its
  * heart. Press the centre and circle it round like a thumb-stick — the knob
  * leans toward your finger and a complete revolution tells a single bead,
- * reversing the loop retreats one. Partial circles bank as a progress arc and
- * carry across separate strokes, so a circle may be closed over several
- * movements. The arrow keys and the Previous/Next buttons remain for keyboard
- * and accessibility. Beads start at twelve o'clock and run clockwise.
+ * reversing the loop retreats one. Only one bead is told per grip: once it
+ * ticks over, further turning is ignored until you lift and grip again, so a
+ * frantic spin can't run away. A partial circle banks as a progress arc and
+ * carries to the next grip, so a circle may be closed over several strokes.
+ * The arrow keys and the Previous/Next buttons remain for keyboard and
+ * accessibility. Beads start at twelve o'clock and run clockwise.
  */
 export function BeadRing({ count, activeIndex, lang, onStep }: Props) {
   const ringRef = useRef<HTMLDivElement>(null);
-  // The active stroke's last stick angle; null between strokes.
-  const drag = useRef<{ last: number } | null>(null);
+  // The active stroke's last stick angle and whether its one bead is spent;
+  // null between strokes.
+  const drag = useRef<{ last: number; stepped: boolean } | null>(null);
   // Banked rotation toward the next bead — persists across separate strokes.
   const acc = useRef(0);
   const [size, setSize] = useState(360);
@@ -84,7 +87,7 @@ export function BeadRing({ count, activeIndex, lang, onStep }: Props) {
   function onPointerDown(e: React.PointerEvent) {
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
     const v = vectorAt(e.clientX, e.clientY);
-    drag.current = { last: v.angle };
+    drag.current = { last: v.angle, stepped: false };
     setHeld(true);
     leanKnob(v.dx, v.dy, v.dist, v.box);
   }
@@ -96,22 +99,30 @@ export function BeadRing({ count, activeIndex, lang, onStep }: Props) {
     leanKnob(v.dx, v.dy, v.dist, v.box);
     // Too near dead-centre to read a bearing: hold the angle this frame.
     if (v.dist < (v.box * DEAD_ZONE_PCT) / 100) return;
-    let delta = v.angle - d.last;
+    // Stay synced to the stick even after this grip's bead is spent, so a fresh
+    // grip doesn't jump from a stale angle.
+    const from = d.last;
+    d.last = v.angle;
+    // One bead per grip: ignore any further turning until the finger lifts.
+    if (d.stepped) return;
+    let delta = v.angle - from;
     if (delta > Math.PI) delta -= TAU;
     if (delta < -Math.PI) delta += TAU;
-    d.last = v.angle;
-    let next = acc.current + delta;
-    // One whole revolution of the stick tells exactly one bead.
-    while (next >= TAU) {
+    const next = acc.current + delta;
+    // A whole revolution tells one bead, then the grip is spent and the
+    // overshoot is dropped rather than banked, so the spin can't run on.
+    if (next >= TAU) {
       onStep(1);
-      next -= TAU;
-    }
-    while (next <= -TAU) {
+      acc.current = 0;
+      d.stepped = true;
+    } else if (next <= -TAU) {
       onStep(-1);
-      next += TAU;
+      acc.current = 0;
+      d.stepped = true;
+    } else {
+      acc.current = next;
     }
-    acc.current = next;
-    setTurn(next / TAU);
+    setTurn(d.stepped ? 0 : acc.current / TAU);
   }
 
   function endDrag(e: React.PointerEvent) {
