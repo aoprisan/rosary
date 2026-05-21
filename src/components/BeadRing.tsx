@@ -46,9 +46,11 @@ function buzz(ms: number) {
  */
 export function BeadRing({ count, activeIndex, lang, onStep }: Props) {
   const ringRef = useRef<HTMLDivElement>(null);
-  // The active stroke's last stick angle, whether its one bead is spent, and
-  // the last detent notch felt; null between strokes.
-  const drag = useRef<{ last: number; stepped: boolean; detent: number } | null>(null);
+  // The active stroke's owning pointer, its last stick angle, whether its one
+  // bead is spent, and the last detent notch felt; null between strokes.
+  const drag = useRef<{ pointerId: number; last: number; stepped: boolean; detent: number } | null>(
+    null,
+  );
   // Banked rotation toward the next bead — persists across separate strokes.
   const acc = useRef(0);
   const [size, setSize] = useState(360);
@@ -94,9 +96,13 @@ export function BeadRing({ count, activeIndex, lang, onStep }: Props) {
   }
 
   function onPointerDown(e: React.PointerEvent) {
+    // One finger owns the stick: a stray second touch must not start a fresh
+    // grip and reset the spent flag, or one spin could tell two beads.
+    if (drag.current) return;
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
     const v = vectorAt(e.clientX, e.clientY);
     drag.current = {
+      pointerId: e.pointerId,
       last: v.angle,
       stepped: false,
       detent: Math.floor((Math.abs(acc.current) / TAU) * DETENTS),
@@ -108,15 +114,15 @@ export function BeadRing({ count, activeIndex, lang, onStep }: Props) {
 
   function onPointerMove(e: React.PointerEvent) {
     const d = drag.current;
-    if (!d) return;
+    if (!d || e.pointerId !== d.pointerId) return;
     const v = vectorAt(e.clientX, e.clientY);
     leanKnob(v.dx, v.dy, v.dist, v.box);
-    // Too near dead-centre to read a bearing: hold the angle this frame.
-    if (v.dist < (v.box * DEAD_ZONE_PCT) / 100) return;
-    // Stay synced to the stick even after this grip's bead is spent, so a fresh
-    // grip doesn't jump from a stale angle.
+    // Stay synced to the stick every frame, even after this grip's bead is spent
+    // or while near dead-centre, so resuming never jumps from a stale angle.
     const from = d.last;
     d.last = v.angle;
+    // Too near dead-centre to read a bearing: hold, banking nothing this frame.
+    if (v.dist < (v.box * DEAD_ZONE_PCT) / 100) return;
     // One bead per grip: ignore any further turning until the finger lifts.
     if (d.stepped) return;
     let delta = v.angle - from;
@@ -144,6 +150,8 @@ export function BeadRing({ count, activeIndex, lang, onStep }: Props) {
   }
 
   function endDrag(e: React.PointerEvent) {
+    // Only the finger that owns the stick can end the grip.
+    if (drag.current && e.pointerId !== drag.current.pointerId) return;
     const el = e.currentTarget as HTMLElement;
     if (el.hasPointerCapture(e.pointerId)) el.releasePointerCapture(e.pointerId);
     drag.current = null;
