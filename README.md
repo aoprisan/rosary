@@ -1,8 +1,8 @@
 # Rosary · Metanier
 
 A virtual prayer rope. Choose the number of beads, pick a prayer, and pray a
-session bead by bead — spin the beads with your finger, tap them, or use the
-buttons. Bilingual: **English** and **Română**.
+session bead by bead — trace a full circle around the rope with your finger to
+tell each bead, or use the buttons. Bilingual: **English** and **Română**.
 
 Sibling to the [Orthodox Calendar](../orthodox) app; it shares the same
 React + Vite + TypeScript stack. The interface is set like a leaf from an
@@ -16,9 +16,12 @@ opening each prayer.
 - **Choose your rope** — presets of 33 / 50 / 100 beads, or any custom count.
 - **Choose a prayer** — the Jesus Prayer, the Lord's Prayer, the Theotokion,
   the Trisagion, or the Glory Be. One prayer is said on each bead.
-- **A spinnable ring** — drag a finger around the rope to tick through beads,
-  tap a bead to jump, tap the centre (or use ←/→) to advance. The told bead
-  is inked in cinnabar; completed circuits are counted.
+- **A circled ring** — trace one full circle around the rope to tell a single
+  bead (reverse the loop to step back); a cinnabar arc fills as you go, and
+  partial circles are banked across strokes so a bead can be closed over
+  several movements. Arrow keys and the Previous/Next buttons remain for
+  keyboard and accessibility. The told bead is inked in cinnabar; completed
+  circuits are counted.
 - **Bilingual** — every prayer and label is provided in English and Romanian;
   the choice is remembered between visits.
 - Progress, language, bead count, and prayer choice persist in `localStorage`.

@@ -10,8 +10,6 @@ interface Props {
   lang: Lang;
   /** Advance (+1) or retreat (-1) by one bead. */
   onStep: (dir: 1 | -1) => void;
-  /** Jump directly to a tapped bead. */
-  onJump: (index: number) => void;
 }
 
 const TAU = Math.PI * 2;
@@ -19,15 +17,23 @@ const TAU = Math.PI * 2;
 const RADIUS_PCT = 42;
 
 /**
- * The prayer rope: beads arranged on a circle. You advance by spinning a
- * finger around the ring (each bead-step of rotation ticks one bead), by
- * tapping a bead to jump to it, by tapping the centre to go forward, or with
- * the arrow keys. Beads start at twelve o'clock and run clockwise.
+ * The prayer rope: beads arranged on a circle. You tell one bead by tracing a
+ * full circle around the rope with one finger — a complete revolution advances
+ * a single bead, reversing the loop retreats one. Partial circles are banked
+ * and carry across separate strokes, so you can close a circle over several
+ * finger movements. The arrow keys and the Previous/Next buttons remain for
+ * keyboard and accessibility. Beads start at twelve o'clock and run clockwise.
  */
-export function BeadRing({ count, activeIndex, lang, onStep, onJump }: Props) {
+export function BeadRing({ count, activeIndex, lang, onStep }: Props) {
   const ringRef = useRef<HTMLDivElement>(null);
-  const drag = useRef<{ last: number; acc: number } | null>(null);
+  // The active stroke's last pointer angle; null between strokes.
+  const drag = useRef<{ last: number } | null>(null);
+  // Banked rotation toward the next bead — persists across separate strokes.
+  const acc = useRef(0);
   const [size, setSize] = useState(360);
+  // Signed fraction (-1..1) of the current revolution traced so far, for the
+  // progress arc. Resets only when a bead ticks over; held between strokes.
+  const [turn, setTurn] = useState(0);
 
   // Track the ring's pixel size so beads can be scaled to fit the count.
   useEffect(() => {
@@ -55,7 +61,7 @@ export function BeadRing({ count, activeIndex, lang, onStep, onJump }: Props) {
 
   function onPointerDown(e: React.PointerEvent) {
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-    drag.current = { last: angleAt(e.clientX, e.clientY), acc: 0 };
+    drag.current = { last: angleAt(e.clientX, e.clientY) };
   }
 
   function onPointerMove(e: React.PointerEvent) {
@@ -65,23 +71,26 @@ export function BeadRing({ count, activeIndex, lang, onStep, onJump }: Props) {
     let delta = a - d.last;
     if (delta > Math.PI) delta -= TAU;
     if (delta < -Math.PI) delta += TAU;
-    d.acc += delta;
     d.last = a;
-    const stepAngle = TAU / count;
-    while (d.acc >= stepAngle) {
+    let next = acc.current + delta;
+    // One whole revolution of the rope tells exactly one bead.
+    while (next >= TAU) {
       onStep(1);
-      d.acc -= stepAngle;
+      next -= TAU;
     }
-    while (d.acc <= -stepAngle) {
+    while (next <= -TAU) {
       onStep(-1);
-      d.acc += stepAngle;
+      next += TAU;
     }
+    acc.current = next;
+    setTurn(next / TAU);
   }
 
   function endDrag(e: React.PointerEvent) {
     const el = e.currentTarget as HTMLElement;
     if (el.hasPointerCapture(e.pointerId)) el.releasePointerCapture(e.pointerId);
     drag.current = null;
+    // Partial progress is kept — the next stroke continues the same circle.
   }
 
   function onKeyDown(e: React.KeyboardEvent) {
@@ -100,14 +109,11 @@ export function BeadRing({ count, activeIndex, lang, onStep, onJump }: Props) {
     const y = 50 + RADIUS_PCT * Math.sin(theta);
     const active = i === activeIndex;
     return (
-      <button
+      <span
         key={i}
-        type="button"
         className="bead"
         data-active={active || undefined}
-        aria-label={`${t('beadAria', lang)} ${i + 1}`}
-        aria-current={active ? 'true' : undefined}
-        onClick={() => onJump(i)}
+        aria-hidden="true"
         style={{
           left: `${x}%`,
           top: `${y}%`,
@@ -138,16 +144,19 @@ export function BeadRing({ count, activeIndex, lang, onStep, onJump }: Props) {
         <svg className="ring__cord" viewBox="0 0 100 100" aria-hidden="true">
           <circle cx="50" cy="50" r={RADIUS_PCT} />
         </svg>
-        <button
-          type="button"
-          className="ring__center"
-          onClick={() => onStep(1)}
-          tabIndex={-1}
-          aria-label={t('nextBeadAria', lang)}
-        >
+        <svg className="ring__turn" viewBox="0 0 100 100" aria-hidden="true">
+          <circle
+            cx="50"
+            cy="50"
+            r={RADIUS_PCT}
+            pathLength={1}
+            style={{ strokeDasharray: `${Math.min(Math.abs(turn), 1)} 1` }}
+          />
+        </svg>
+        <div className="ring__center" aria-hidden="true">
           <span className="ring__count">{activeIndex + 1}</span>
           <span className="ring__total">/ {count}</span>
-        </button>
+        </div>
         {beads}
         <span className="ring__cross" aria-hidden="true">
           <Cross />

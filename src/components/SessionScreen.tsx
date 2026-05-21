@@ -87,7 +87,6 @@ export function SessionScreen({ lang, config, onLangChange, onExit }: Props) {
       return { index: next, laps: nextLaps };
     });
 
-  const jump = (i: number) => setProgress((prev) => ({ ...prev, index: i }));
   const reset = () => {
     prevLaps.current = 0;
     setFlash(false);
@@ -123,7 +122,6 @@ export function SessionScreen({ lang, config, onLangChange, onExit }: Props) {
         activeIndex={index}
         lang={lang}
         onStep={step}
-        onJump={jump}
       />
 
       <p className="spin-hint">{t('spinHint', lang)}</p>
