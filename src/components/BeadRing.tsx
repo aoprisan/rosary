@@ -214,15 +214,6 @@ export function BeadRing({ count, activeIndex, lang, onStep }: Props) {
         <svg className="ring__cord" viewBox="0 0 100 100" aria-hidden="true">
           <circle cx="50" cy="50" r={RADIUS_PCT} />
         </svg>
-        <svg className="ring__turn" viewBox="0 0 100 100" aria-hidden="true">
-          <circle
-            cx="50"
-            cy="50"
-            r={RADIUS_PCT}
-            pathLength={1}
-            style={{ strokeDasharray: `${Math.min(Math.abs(turn), 1)} 1` }}
-          />
-        </svg>
         <svg className="ring__gauge" viewBox="0 0 100 100" aria-hidden="true">
           <circle className="ring__gauge-track" cx="50" cy="50" r={GAUGE_RADIUS_PCT} pathLength={1} />
           <circle
@@ -239,6 +230,7 @@ export function BeadRing({ count, activeIndex, lang, onStep }: Props) {
           aria-hidden="true"
           style={{ transform: `translate(calc(-50% + ${knob.x}px), calc(-50% + ${knob.y}px))` }}
         >
+          <Cross className="ring__watermark" />
           <span key={activeIndex} className="ring__count">
             {activeIndex + 1}
           </span>

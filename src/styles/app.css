@@ -13,11 +13,11 @@
     clamp(1.5rem, 4vw, 2.5rem);
   color: var(--ink);
   background-color: var(--paper);
-  background-image: var(--paper-grain),
-    radial-gradient(ellipse 80% 60% at 50% 18%, rgba(255, 248, 226, 0.55), transparent 60%),
-    radial-gradient(ellipse 125% 90% at 50% 45%, transparent 56%, rgba(120, 86, 40, 0.16));
-  background-size: 200px 200px, auto, auto;
-  background-blend-mode: multiply, screen, normal;
+  background-image: var(--paper-grain), var(--paper-foxing),
+    radial-gradient(ellipse 80% 60% at 50% 18%, rgba(255, 248, 226, 0.6), transparent 60%),
+    radial-gradient(ellipse 125% 92% at 50% 45%, transparent 52%, rgba(120, 86, 40, 0.2));
+  background-size: 200px 200px, auto, auto, auto;
+  background-blend-mode: multiply, normal, screen, normal;
   box-shadow: var(--shadow-page);
 }
 
@@ -48,6 +48,31 @@
   }
 }
 
+/* ── Illuminated border corners ──────────────────────────────────────── */
+.corner {
+  position: absolute;
+  z-index: 2;
+  width: clamp(34px, 7vw, 56px);
+  height: auto;
+  pointer-events: none;
+  opacity: 0;
+  animation: corner-in var(--dur-slow) var(--ease-out-quint) 360ms both;
+}
+.corner--tl { top: clamp(10px, 2.6vw, 19px); left: clamp(10px, 2.6vw, 19px); }
+.corner--tr { top: clamp(10px, 2.6vw, 19px); right: clamp(10px, 2.6vw, 19px); transform: scaleX(-1); }
+.corner--bl { bottom: clamp(10px, 2.6vw, 19px); left: clamp(10px, 2.6vw, 19px); transform: scaleY(-1); }
+.corner--br { bottom: clamp(10px, 2.6vw, 19px); right: clamp(10px, 2.6vw, 19px); transform: scale(-1, -1); }
+@keyframes corner-in {
+  from { opacity: 0; }
+  to { opacity: 0.92; }
+}
+
+/* A gilded boss — a bead of raised, burnished gold. */
+.orn-boss {
+  fill: var(--gold-bright);
+  filter: drop-shadow(0 0.5px 0.5px rgba(92, 67, 16, 0.7));
+}
+
 /* ── Crosses & ornament inks ─────────────────────────────────────────── */
 .cross {
   display: inline-block;
@@ -66,6 +91,11 @@
 .ornament--rule {
   width: min(58%, 230px);
   margin: var(--space-5) auto;
+}
+.ornament--tailpiece {
+  width: min(46%, 196px);
+  margin: var(--space-8) auto var(--space-4);
+  opacity: 0.9;
 }
 .orn-stroke {
   fill: none;
@@ -95,7 +125,8 @@
   fill: var(--ink);
 }
 .orn-dot-gold {
-  fill: var(--gold);
+  fill: var(--gold-bright);
+  filter: drop-shadow(0 0.4px 0.4px rgba(92, 67, 16, 0.6));
 }
 
 /* ─────────────────────────────────────────────────────────────────────
@@ -160,6 +191,9 @@
   line-height: 0.96;
   color: var(--rubric);
   letter-spacing: 0.015em;
+  /* an inked impression, pressed into the paper with a glint of gold */
+  text-shadow: 0 1px 0 rgba(255, 248, 226, 0.5), 0 2px 5px rgba(111, 27, 15, 0.22),
+    0.5px 0.5px 0 rgba(181, 138, 48, 0.3);
 }
 .masthead__subtitle {
   margin: var(--space-2) 0 0;
@@ -167,13 +201,28 @@
   font-size: 1.08rem;
   color: var(--ink-soft);
 }
+/* The incipit, set as a rubric between two cinnabar leaf-points. */
 .incipit {
-  max-width: 32ch;
-  margin: var(--space-4) auto 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  max-width: 34ch;
+  margin: var(--space-5) auto 0;
   font-style: italic;
   font-size: 0.96rem;
   line-height: 1.5;
   color: var(--rubric);
+}
+.incipit::before,
+.incipit::after {
+  content: '';
+  flex: 0 0 auto;
+  width: 0.4rem;
+  height: 0.4rem;
+  background: var(--rubric);
+  transform: rotate(45deg);
+  opacity: 0.7;
 }
 
 /* ─────────────────────────────────────────────────────────────────────
@@ -373,7 +422,8 @@
   padding: var(--space-3) var(--space-8);
   border: 1.5px solid var(--rubric);
   border-radius: var(--radius);
-  box-shadow: inset 0 0 0 0.5px var(--rubric);
+  box-shadow: inset 0 0 0 2.5px var(--paper),
+    inset 0 0 0 3.5px rgba(181, 138, 48, 0.65);
   font-family: var(--font-body);
   font-variant-caps: all-small-caps;
   font-size: 1.2rem;
@@ -381,7 +431,7 @@
   color: var(--rubric);
   background: transparent;
   transition: background var(--dur-fast), color var(--dur-fast),
-    transform var(--dur-fast) var(--ease-out-quint);
+    box-shadow var(--dur-fast), transform var(--dur-fast) var(--ease-out-quint);
   animation: ink-in var(--dur-slow) var(--ease-out-quint) 220ms both;
 }
 .begin-btn .cross {
@@ -390,6 +440,8 @@
 .begin-btn:hover {
   background: var(--rubric);
   color: var(--paper-bright);
+  box-shadow: inset 0 0 0 2.5px var(--rubric),
+    inset 0 0 0 3.5px rgba(243, 226, 163, 0.7), 0 2px 10px rgba(111, 27, 15, 0.3);
 }
 .begin-btn:hover .orn-stroke-bold {
   stroke: var(--paper-bright);
@@ -454,16 +506,33 @@
 }
 
 .session__flash {
-  min-height: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  min-height: 1.6rem;
   margin-top: var(--space-3);
   text-align: center;
   font-style: italic;
+  font-size: 1.02rem;
   color: var(--rubric);
   opacity: 0;
-  transition: opacity var(--dur-base);
+  transform: translateY(-3px);
+  transition: opacity var(--dur-base), transform var(--dur-base) var(--ease-out-quint);
 }
 .session__flash.is-on {
   opacity: 1;
+  transform: none;
+}
+/* gilded leaf-points flanking the notice when it appears */
+.session__flash.is-on::before,
+.session__flash.is-on::after {
+  content: '';
+  width: 0.42rem;
+  height: 0.42rem;
+  background: var(--gold-bright);
+  box-shadow: 0 0 5px rgba(215, 173, 77, 0.7);
+  transform: rotate(45deg);
 }
 
 /* ── The prayer rope (komboskini), inked on the page ─────────────────── */
@@ -503,26 +572,9 @@
   stroke-dasharray: 0.35 1.9;
   stroke-linecap: round;
 }
-/* The circle being traced fills in cinnabar, from twelve o'clock, clockwise. */
-.ring__turn {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  transform: rotate(-90deg);
-  transform-origin: 50% 50%;
-}
-.ring__turn circle {
-  fill: none;
-  stroke: var(--rubric);
-  stroke-width: 1.4;
-  stroke-linecap: round;
-  opacity: 0.85;
-  transition: stroke-dasharray 80ms linear;
-}
-/* A gauge hugging the knob: a faint full track shows the turn a bead costs,
-   and the cinnabar fill grows to meet it as the stick is circled. */
+/* A gilded gauge hugging the knob: a faint track shows the turn a bead costs,
+   and a gold fill grows to meet it as the stick is circled — gilding the
+   cord toward the next bead. */
 .ring__gauge {
   position: absolute;
   inset: 0;
@@ -539,17 +591,21 @@
 .ring__gauge-track {
   stroke: var(--ink-faint);
   stroke-width: 1.6;
-  opacity: 0.45;
+  opacity: 0.4;
 }
 .ring__gauge-fill {
-  stroke: var(--rubric);
+  stroke: var(--gold-bright);
   stroke-width: 2.6;
+  filter: drop-shadow(0 0 1.5px rgba(215, 173, 77, 0.8));
   transition: stroke-dasharray 80ms linear, stroke var(--dur-fast);
 }
-/* A full turn glows bright the instant before the bead is told. */
+/* A full turn flares to pale gold the instant before the bead is told. */
 .ring__gauge-fill.is-full {
-  stroke: var(--rubric-bright);
+  stroke: var(--gold-pale);
 }
+
+/* The heart of the rope: an illuminated roundel, double-ruled in gold,
+   with a faint cross told beneath the count, that leans as a joystick. */
 .ring__center {
   pointer-events: none;
   position: absolute;
@@ -563,26 +619,53 @@
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  border: 1px solid var(--ink-faint);
-  background: radial-gradient(circle at 50% 38%, var(--paper-bright), var(--paper-shade) 92%);
-  box-shadow: var(--shadow-press);
+  background:
+    radial-gradient(circle at 50% 36%, var(--paper-bright), var(--paper-shade) 94%);
+  box-shadow:
+    var(--shadow-press),
+    0 0 0 1px var(--gold-deep),
+    0 0 0 3px var(--paper),
+    0 0 0 4px rgba(181, 138, 48, 0.5),
+    0 0 0 5.5px var(--gold),
+    0 2px 7px rgba(92, 67, 16, 0.28);
   /* The joystick knob springs back to centre when released. */
   transition: transform 300ms var(--ease-out-quint), box-shadow var(--dur-fast);
 }
-/* While gripped the knob tracks the finger with no lag, and presses in. */
+/* While gripped the knob tracks the finger with no lag; the gilding catches
+   candlelight and a warm halo blooms around it. */
 .ring__center.is-held {
   transition: box-shadow var(--dur-fast);
-  border-color: var(--rubric);
-  box-shadow: var(--shadow-press), inset 0 0 0 1px var(--rubric-wash),
-    0 0 12px 1px rgba(157, 42, 25, 0.18);
+  box-shadow:
+    var(--shadow-press),
+    0 0 0 1px var(--gold-deep),
+    0 0 0 3px var(--paper),
+    0 0 0 4px rgba(181, 138, 48, 0.75),
+    0 0 0 5.5px var(--gold-bright),
+    0 0 16px 2px rgba(215, 173, 77, 0.4);
+}
+.ring__watermark {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 60%;
+  height: auto;
+  opacity: 0.08;
+  color: var(--ink);
+}
+.ring__watermark .orn-stroke-bold {
+  stroke: var(--ink);
 }
 .ring__count {
+  position: relative;
+  z-index: 1;
   font-family: var(--font-body);
   font-weight: 600;
   font-size: clamp(2rem, 9vw, 3rem);
   line-height: 1;
   color: var(--rubric);
   font-feature-settings: 'lnum' 1;
+  text-shadow: 0 1px 0 rgba(255, 248, 226, 0.7);
   /* A brief pop each time the count changes — felt as a bead is told. */
   animation: bead-told var(--dur-base) var(--ease-out-quint);
 }
@@ -604,6 +687,8 @@
   }
 }
 .ring__total {
+  position: relative;
+  z-index: 1;
   margin-top: 0.2rem;
   font-variant-caps: all-small-caps;
   letter-spacing: 0.12em;
@@ -642,19 +727,35 @@
 }
 .bead[data-active] {
   z-index: 3;
-  transform: translate(-50%, -50%) scale(1.55);
-  background: radial-gradient(circle at 38% 32%, var(--rubric-bright), var(--rubric) 58%, var(--rubric-deep));
-  outline: 1px solid var(--rubric);
-  outline-offset: 3px;
+  transform: translate(-50%, -50%) scale(1.7);
+  background: radial-gradient(circle at 36% 30%, var(--rubric-bright), var(--rubric) 56%, var(--rubric-deep));
+  outline: 1.5px solid var(--gold);
+  outline-offset: 2.5px;
+  box-shadow: 0 0 0 0.5px var(--gold-pale), 0 1px 2px rgba(0, 0, 0, 0.4);
   animation: tell 2.6s var(--ease-in-out-sine) infinite;
 }
 
+/* The spin-hint, set as a rubric instruction (rubrica) in cinnabar. */
 .spin-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
   margin: 0 0 var(--space-6);
   text-align: center;
   font-style: italic;
   font-size: 0.92rem;
-  color: var(--ink-soft);
+  color: var(--rubric);
+  opacity: 0.92;
+}
+.spin-hint::before,
+.spin-hint::after {
+  content: '';
+  width: 0.3rem;
+  height: 0.3rem;
+  background: var(--rubric);
+  transform: rotate(45deg);
+  opacity: 0.55;
 }
 
 /* ── Prayer text — a rubricated, illuminated passage ─────────────────── */
@@ -677,28 +778,112 @@
 .prayer-card__title .cross {
   width: 0.82em;
 }
+/* The prayer set as an illuminated passage: a champ initial floated into
+   left-ranged lines, ragged right, as on a manuscript leaf. */
 .prayer-card__text {
-  display: flex;
-  flex-direction: column;
-  gap: 0.18rem;
-  max-width: 38ch;
+  display: flow-root;
+  max-width: 40ch;
   margin: 0 auto;
+  text-align: left;
 }
 .prayer-card__line {
+  display: block;
   font-family: var(--font-body);
   font-size: clamp(1.2rem, 3.5vw, 1.52rem);
-  line-height: 1.5;
+  line-height: 1.52;
   color: var(--ink);
+  text-indent: 0;
 }
-/* The illuminated initial: a versal opening the prayer. */
-.prayer-card__line:first-child::first-letter {
+.prayer-card__line + .prayer-card__line {
+  margin-top: 0.1rem;
+}
+
+/* ── The illuminated champ initial ───────────────────────────────────── */
+.champ {
+  position: relative;
+  float: left;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(3.3rem, 13vw, 4.5rem);
+  height: clamp(3.3rem, 13vw, 4.5rem);
+  margin: 0.32rem 0.8rem 0.15rem 0;
+  border-radius: 1.5px;
+  animation: gild-in var(--dur-slow) var(--ease-out-quint) 200ms both;
+}
+/* the burnished gold-leaf ground, laid slightly proud of the page */
+.champ__ground {
+  position: absolute;
+  inset: 0;
+  border-radius: 1.5px;
+  background-image: var(--gold-grain), var(--gold-leaf);
+  background-size: 90px 90px, auto;
+  background-blend-mode: multiply, normal;
+  box-shadow: var(--shadow-gild), 0 1.5px 4px rgba(92, 67, 16, 0.45);
+}
+/* a fine cinnabar rule with a hairline of gold inside it */
+.champ::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  border: 1.5px solid var(--rubric);
+  border-radius: 1.5px;
+  box-shadow: inset 0 0 0 2.5px rgba(243, 226, 163, 0.55);
+  pointer-events: none;
+}
+.champ__sheen {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: 1.5px;
+  background: var(--gold-sheen);
+  background-repeat: no-repeat;
+  background-size: 250% 100%;
+  background-position: 135% 0;
+  mix-blend-mode: screen;
+  animation: champ-sheen 7s var(--ease-in-out-sine) 1.4s infinite;
+}
+@keyframes champ-sheen {
+  0%, 16% { background-position: 135% 0; }
+  44%, 100% { background-position: -70% 0; }
+}
+.champ__vines {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.champ-vine {
+  fill: none;
+  stroke: var(--gold-pale);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  opacity: 0.75;
+}
+.champ-leaf {
+  fill: var(--gold-pale);
+  opacity: 0.82;
+}
+.champ-berry {
+  fill: var(--rubric-bright);
+}
+.champ__letter {
+  position: relative;
+  z-index: 5;
   font-family: var(--font-display);
-  font-size: 2em;
-  line-height: 0.7;
-  color: var(--rubric);
-  padding-right: 0.05em;
-  text-shadow: 1px 1px 0 rgba(181, 138, 48, 0.55);
+  font-size: clamp(2.3rem, 9vw, 3.1rem);
+  line-height: 1;
+  color: var(--rubric-deep);
+  text-shadow: 0 1px 0 rgba(243, 226, 163, 0.85), 0 -0.5px 0 rgba(60, 18, 10, 0.4);
 }
+@keyframes gild-in {
+  from { opacity: 0; transform: translateY(5px) scale(0.96); }
+  to { opacity: 1; transform: none; }
+}
+
 .prayer-card::after {
   content: '';
   display: block;
@@ -779,11 +964,13 @@
 @keyframes tell {
   0%,
   100% {
-    box-shadow: 0 0 0 0 rgba(157, 42, 25, 0);
-    outline-color: rgba(157, 42, 25, 0.5);
+    box-shadow: 0 0 0 0.5px var(--gold-pale), 0 0 0 0 rgba(215, 173, 77, 0),
+      0 1px 2px rgba(0, 0, 0, 0.4);
+    outline-color: var(--gold-deep);
   }
   50% {
-    box-shadow: 0 0 10px 2px rgba(157, 42, 25, 0.4);
-    outline-color: rgba(157, 42, 25, 0.95);
+    box-shadow: 0 0 0 0.5px var(--gold-pale), 0 0 11px 2px rgba(215, 173, 77, 0.55),
+      0 1px 2px rgba(0, 0, 0, 0.4);
+    outline-color: var(--gold-bright);
   }
 }

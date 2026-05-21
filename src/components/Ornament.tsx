@@ -11,7 +11,7 @@
  */
 
 interface Props {
-  variant?: 'headpiece' | 'rule';
+  variant?: 'headpiece' | 'rule' | 'corner' | 'tailpiece';
   className?: string;
 }
 
@@ -112,7 +112,73 @@ function Scroll({ dir }: { dir: 1 | -1 }) {
   );
 }
 
+/**
+ * A foliate corner-piece for the border of the leaf: two ivy arms running out
+ * from a gilded boss along the top and left edges, drawn for the top-left
+ * corner and rotated by CSS for the other three.
+ */
+function CornerPiece() {
+  return (
+    <>
+      {/* the two arms of the corner */}
+      <path className="orn-stroke" d="M9 9 C 32 6, 54 11, 80 7" />
+      <path className="orn-stroke" d="M9 9 C 6 32, 11 54, 7 80" />
+      {/* ivy leaves trailing along each arm */}
+      <g transform="translate(34 8) rotate(-26)"><path className="orn-leaf" d={leaf(15)} /></g>
+      <g transform="translate(60 9) rotate(20)"><path className="orn-leaf" d={leaf(11)} /></g>
+      <g transform="translate(8 34) rotate(116)"><path className="orn-leaf" d={leaf(15)} /></g>
+      <g transform="translate(9 60) rotate(70)"><path className="orn-leaf" d={leaf(11)} /></g>
+      {/* berries and the gilded boss at the angle */}
+      <circle className="orn-dot-ink" cx={80} cy={7} r={2.2} />
+      <circle className="orn-dot-ink" cx={7} cy={80} r={2.2} />
+      <circle className="orn-dot-gold orn-boss" cx={9} cy={9} r={4.2} />
+    </>
+  );
+}
+
 export function Ornament({ variant = 'headpiece', className }: Props) {
+  if (variant === 'corner') {
+    return (
+      <svg
+        className={`ornament ornament--corner${className ? ` ${className}` : ''}`}
+        viewBox="0 0 88 88"
+        role="presentation"
+        aria-hidden="true"
+      >
+        <CornerPiece />
+      </svg>
+    );
+  }
+
+  if (variant === 'tailpiece') {
+    // A cul-de-lampe: a small foliate drop that closes the page.
+    return (
+      <svg
+        className={`ornament ornament--tailpiece${className ? ` ${className}` : ''}`}
+        viewBox="0 0 200 78"
+        role="presentation"
+        aria-hidden="true"
+        preserveAspectRatio="xMidYMid meet"
+      >
+        {/* top hairline with terminal berries */}
+        <path className="orn-stroke" d="M44 8 H 156" />
+        <circle className="orn-dot-ink" cx={44} cy={8} r={2.4} />
+        <circle className="orn-dot-ink" cx={156} cy={8} r={2.4} />
+        {/* descending mirrored leaf-pairs, narrowing to a drop */}
+        <g transform="translate(100 8)">
+          <path className="orn-stroke" d="M0 0 V 56" />
+          <g transform="translate(0 12)"><path className="orn-leaf" d={leaf(26)} /></g>
+          <g transform="translate(0 12)"><path className="orn-leaf" d={leaf(26)} transform="scale(-1 1)" /></g>
+          <g transform="translate(0 30)"><path className="orn-leaf" d={leaf(17)} transform="rotate(22)" /></g>
+          <g transform="translate(0 30)"><path className="orn-leaf" d={leaf(17)} transform="rotate(22) scale(-1 1)" /></g>
+          <g transform="translate(0 44)"><path className="orn-leaf" d={leaf(10)} transform="rotate(46)" /></g>
+          <g transform="translate(0 44)"><path className="orn-leaf" d={leaf(10)} transform="rotate(46) scale(-1 1)" /></g>
+          <circle className="orn-dot-gold orn-boss" cx={0} cy={60} r={3.4} />
+        </g>
+      </svg>
+    );
+  }
+
   if (variant === 'rule') {
     return (
       <svg

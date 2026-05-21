@@ -43,6 +43,10 @@ export function App() {
 
   return (
     <div className="app">
+      <Ornament variant="corner" className="corner corner--tl" />
+      <Ornament variant="corner" className="corner corner--tr" />
+      <Ornament variant="corner" className="corner corner--bl" />
+      <Ornament variant="corner" className="corner corner--br" />
       {screen === 'setup' ? (
         <SetupScreen
           lang={lang}
@@ -61,7 +65,7 @@ export function App() {
           onExit={() => setScreen('setup')}
         />
       )}
-      <Ornament variant="rule" />
+      <Ornament variant="tailpiece" className="footer__tailpiece" />
       <footer className="footer">{t('footer', lang)}</footer>
     </div>
   );

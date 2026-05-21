@@ -24,14 +24,39 @@
   --rubric-deep: #6f1b0f;
   --rubric-wash: rgba(157, 42, 25, 0.1);
 
-  /* Gold — sparing, for the illuminated initial only */
+  /* Gold — sparing, precious; reserved for illumination and gilding */
   --gold: #b58a30;
   --gold-bright: #d7ad4d;
+  --gold-pale: #f3e2a3;
   --gold-deep: #8a651b;
+  --gold-shadow: #5c4310;
+
+  /* Burnished gold leaf — a struck, diagonal sheen for grounds & gilding */
+  --gold-leaf: linear-gradient(
+    135deg,
+    #c79a3a 0%,
+    #f4e6ac 18%,
+    #d3a843 38%,
+    #a9801f 56%,
+    #e9d488 74%,
+    #b88e2c 100%
+  );
+  /* A thin raking sheen swept across leaf to suggest reflected candlelight. */
+  --gold-sheen: linear-gradient(
+    115deg,
+    transparent 30%,
+    rgba(255, 248, 214, 0.85) 47%,
+    transparent 62%
+  );
+  /* Lapis — the one cold pigment of a Horae, for grounds beside the gold */
+  --lapis: #2a3f73;
+  --lapis-deep: #1a2a55;
 
   /* The lectern the leaf rests upon */
   --desk: #18110a;
   --desk-2: #281a0e;
+  /* The shadow of the binding, falling into the gutter at the leaf's edge */
+  --gutter: rgba(24, 15, 6, 0.5);
 
   /* ── Typography ────────────────────────────────────────────────── */
   --font-body: 'EB Garamond', 'Cardo', Georgia, 'Times New Roman', serif;
@@ -58,11 +83,23 @@
   --dur-slow: 720ms;
 
   /* ── Shadows ───────────────────────────────────────────────────── */
-  --shadow-page: 0 1px 2px rgba(0, 0, 0, 0.45), 0 22px 60px rgba(0, 0, 0, 0.55);
+  --shadow-page: 0 1px 2px rgba(0, 0, 0, 0.45), 0 28px 70px rgba(0, 0, 0, 0.6),
+    0 6px 16px rgba(0, 0, 0, 0.35);
   --shadow-press: inset 0 1px 3px rgba(85, 60, 25, 0.28);
+  /* Raised gilding: a leaf laid slightly proud of the page. */
+  --shadow-gild: 0 0.5px 0 rgba(255, 248, 214, 0.7),
+    0 1px 2px rgba(92, 67, 16, 0.55), inset 0 0.5px 1px rgba(255, 248, 214, 0.5);
 
   /* A fine paper grain, printed warm and faint (used with multiply). */
   --paper-grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' seed='11'/><feColorMatrix values='0 0 0 0 0.35  0 0 0 0 0.27  0 0 0 0 0.12  0 0 0 0.5 0'/></filter><rect width='100%' height='100%' filter='url(%23g)'/></svg>");
+  /* Foxing — sparse warm age-spots, scattered across the leaf. */
+  --paper-foxing: radial-gradient(circle at 12% 22%, rgba(150, 105, 50, 0.09), transparent 9%),
+    radial-gradient(circle at 84% 14%, rgba(150, 105, 50, 0.07), transparent 7%),
+    radial-gradient(circle at 70% 78%, rgba(150, 105, 50, 0.08), transparent 8%),
+    radial-gradient(circle at 26% 88%, rgba(150, 105, 50, 0.06), transparent 6%),
+    radial-gradient(circle at 92% 56%, rgba(150, 105, 50, 0.05), transparent 5%);
+  /* Hammered-leaf speckle for gilded grounds (multiply over --gold-leaf). */
+  --gold-grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='90' height='90'><filter id='k'><feTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='2' seed='4'/><feColorMatrix values='0 0 0 0 0.55  0 0 0 0 0.42  0 0 0 0 0.08  0 0 0 0.35 0'/></filter><rect width='100%' height='100%' filter='url(%23k)'/></svg>");
 }
 
 * {
@@ -89,8 +126,9 @@ body {
 body {
   background-color: var(--desk);
   background-image:
-    radial-gradient(ellipse 90% 55% at 50% -8%, rgba(181, 138, 48, 0.16), transparent 62%),
-    radial-gradient(ellipse 70% 60% at 50% 118%, rgba(0, 0, 0, 0.55), transparent 60%),
+    radial-gradient(ellipse 60% 42% at 50% -12%, rgba(214, 162, 70, 0.22), transparent 60%),
+    radial-gradient(ellipse 90% 55% at 50% -8%, rgba(181, 138, 48, 0.13), transparent 64%),
+    radial-gradient(ellipse 70% 60% at 50% 118%, rgba(0, 0, 0, 0.6), transparent 60%),
     repeating-linear-gradient(
       94deg,
       rgba(0, 0, 0, 0.16) 0 2px,
@@ -98,6 +136,22 @@ body {
       rgba(0, 0, 0, 0) 5px 11px
     );
   background-attachment: fixed;
+}
+
+/* A slow candle warmth breathing over the lectern behind the leaf. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse 52% 38% at 50% 4%, rgba(224, 168, 74, 0.16), transparent 58%);
+  mix-blend-mode: screen;
+  animation: candle 7.5s var(--ease-in-out-sine) infinite;
+}
+@keyframes candle {
+  0%, 100% { opacity: 0.55; transform: translateY(0) scale(1); }
+  50% { opacity: 1; transform: translateY(-1%) scale(1.04); }
 }
 
 button {
