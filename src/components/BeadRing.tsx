@@ -23,6 +23,15 @@ const RADIUS_PCT = 42;
 const DEAD_ZONE_PCT = 6;
 /** How far the joystick knob may throw from centre, as a fraction of the box. */
 const MAX_THROW_PCT = 9;
+/** Notches felt per full revolution, for a ratcheting feel as the stick turns. */
+const DETENTS = 12;
+
+/** A short haptic pulse, where the device and browser allow it. */
+function buzz(ms: number) {
+  if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
+    navigator.vibrate(ms);
+  }
+}
 
 /**
  * The prayer rope: beads arranged on a circle, told with a joystick at its
@@ -37,9 +46,9 @@ const MAX_THROW_PCT = 9;
  */
 export function BeadRing({ count, activeIndex, lang, onStep }: Props) {
   const ringRef = useRef<HTMLDivElement>(null);
-  // The active stroke's last stick angle and whether its one bead is spent;
-  // null between strokes.
-  const drag = useRef<{ last: number; stepped: boolean } | null>(null);
+  // The active stroke's last stick angle, whether its one bead is spent, and
+  // the last detent notch felt; null between strokes.
+  const drag = useRef<{ last: number; stepped: boolean; detent: number } | null>(null);
   // Banked rotation toward the next bead — persists across separate strokes.
   const acc = useRef(0);
   const [size, setSize] = useState(360);
@@ -87,9 +96,14 @@ export function BeadRing({ count, activeIndex, lang, onStep }: Props) {
   function onPointerDown(e: React.PointerEvent) {
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
     const v = vectorAt(e.clientX, e.clientY);
-    drag.current = { last: v.angle, stepped: false };
+    drag.current = {
+      last: v.angle,
+      stepped: false,
+      detent: Math.floor((Math.abs(acc.current) / TAU) * DETENTS),
+    };
     setHeld(true);
     leanKnob(v.dx, v.dy, v.dist, v.box);
+    buzz(8); // a soft tap on grip
   }
 
   function onPointerMove(e: React.PointerEvent) {
@@ -111,16 +125,20 @@ export function BeadRing({ count, activeIndex, lang, onStep }: Props) {
     const next = acc.current + delta;
     // A whole revolution tells one bead, then the grip is spent and the
     // overshoot is dropped rather than banked, so the spin can't run on.
-    if (next >= TAU) {
-      onStep(1);
+    if (next >= TAU || next <= -TAU) {
+      onStep(next >= TAU ? 1 : -1);
       acc.current = 0;
       d.stepped = true;
-    } else if (next <= -TAU) {
-      onStep(-1);
-      acc.current = 0;
-      d.stepped = true;
+      d.detent = 0;
+      buzz(18); // a firm tick: the bead is told
     } else {
       acc.current = next;
+      // A light notch each time the stick crosses a detent, in either turn.
+      const det = Math.floor((Math.abs(next) / TAU) * DETENTS);
+      if (det !== d.detent) {
+        d.detent = det;
+        buzz(4);
+      }
     }
     setTurn(d.stepped ? 0 : acc.current / TAU);
   }
@@ -200,7 +218,9 @@ export function BeadRing({ count, activeIndex, lang, onStep }: Props) {
           aria-hidden="true"
           style={{ transform: `translate(calc(-50% + ${knob.x}px), calc(-50% + ${knob.y}px))` }}
         >
-          <span className="ring__count">{activeIndex + 1}</span>
+          <span key={activeIndex} className="ring__count">
+            {activeIndex + 1}
+          </span>
           <span className="ring__total">/ {count}</span>
         </div>
         {beads}

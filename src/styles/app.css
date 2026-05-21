@@ -554,6 +554,25 @@
   line-height: 1;
   color: var(--rubric);
   font-feature-settings: 'lnum' 1;
+  /* A brief pop each time the count changes — felt as a bead is told. */
+  animation: bead-told var(--dur-base) var(--ease-out-quint);
+}
+@keyframes bead-told {
+  0% {
+    transform: scale(1);
+  }
+  35% {
+    transform: scale(1.22);
+    color: var(--rubric-bright);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ring__count {
+    animation: none;
+  }
 }
 .ring__total {
   margin-top: 0.2rem;
