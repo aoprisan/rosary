@@ -18,6 +18,8 @@ React + Vite + TypeScript stack and Byzantine visual language.
 - **Bilingual** — every prayer and label is provided in English and Romanian;
   the choice is remembered between visits.
 - Progress, language, bead count, and prayer choice persist in `localStorage`.
+- **Installable PWA** — a web app manifest + service worker (Workbox) make it
+  installable to the home screen and fully usable offline.
 
 ## Tech stack
 
@@ -26,6 +28,8 @@ React + Vite + TypeScript stack and Byzantine visual language.
 - Hand-rolled CSS with design tokens (no UI framework), shared palette with the
   Orthodox Calendar
 - Custom, dependency-free i18n (`src/i18n/`)
+- [vite-plugin-pwa](https://vite-pwa-org.netlify.app/) for the manifest +
+  service worker. Icons are generated from `public/icon.svg`.
 
 ## Develop
 

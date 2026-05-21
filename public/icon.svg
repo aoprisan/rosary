@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="42%" r="60%">
+      <stop offset="0%" stop-color="#5a2330" />
+      <stop offset="55%" stop-color="#3a0f17" />
+      <stop offset="100%" stop-color="#220810" />
+    </radialGradient>
+    <radialGradient id="bead" cx="36%" cy="30%" r="72%">
+      <stop offset="0%" stop-color="#f6e198" />
+      <stop offset="55%" stop-color="#c9a227" />
+      <stop offset="100%" stop-color="#8a6d1a" />
+    </radialGradient>
+    <radialGradient id="beadActive" cx="36%" cy="30%" r="72%">
+      <stop offset="0%" stop-color="#fff7d6" />
+      <stop offset="50%" stop-color="#e8c552" />
+      <stop offset="100%" stop-color="#c9a227" />
+    </radialGradient>
+  </defs>
+
+  <!-- Full-bleed ground so the icon survives any maskable crop. -->
+  <rect width="512" height="512" fill="#220810" />
+  <rect width="512" height="512" fill="url(#glow)" />
+
+  <!-- Prayer cord (kept within the maskable safe zone, r < 205). -->
+  <circle cx="256" cy="256" r="150" fill="none" stroke="rgba(201,162,39,0.45)"
+          stroke-width="3" stroke-dasharray="2 14" stroke-linecap="round" />
+
+  <!-- Beads around the cord. -->
+  <g fill="url(#bead)">
+    <circle cx="331" cy="126" r="20" />
+    <circle cx="386" cy="181" r="20" />
+    <circle cx="406" cy="256" r="20" />
+    <circle cx="386" cy="331" r="20" />
+    <circle cx="331" cy="386" r="20" />
+    <circle cx="256" cy="406" r="20" />
+    <circle cx="181" cy="386" r="20" />
+    <circle cx="126" cy="331" r="20" />
+    <circle cx="106" cy="256" r="20" />
+    <circle cx="126" cy="181" r="20" />
+    <circle cx="181" cy="126" r="20" />
+  </g>
+  <!-- The active bead at twelve o'clock, glowing. -->
+  <circle cx="256" cy="106" r="26" fill="url(#beadActive)" />
+
+  <!-- Latin cross at the heart of the rope. -->
+  <g fill="#e8c552">
+    <rect x="245" y="188" width="22" height="136" rx="6" />
+    <rect x="210" y="222" width="92" height="22" rx="6" />
+  </g>
+</svg>
