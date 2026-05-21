@@ -15,6 +15,8 @@ interface Props {
 const TAU = Math.PI * 2;
 /** Bead-centre radius as a fraction of the ring's box. */
 const RADIUS_PCT = 42;
+/** Radius of the progress gauge that rings the central knob. */
+const GAUGE_RADIUS_PCT = 28;
 /**
  * Pointer offsets nearer than this fraction of the box have no reliable
  * bearing, so the stick's angle is held rather than tracked — this is the
@@ -217,6 +219,17 @@ export function BeadRing({ count, activeIndex, lang, onStep }: Props) {
             cx="50"
             cy="50"
             r={RADIUS_PCT}
+            pathLength={1}
+            style={{ strokeDasharray: `${Math.min(Math.abs(turn), 1)} 1` }}
+          />
+        </svg>
+        <svg className="ring__gauge" viewBox="0 0 100 100" aria-hidden="true">
+          <circle className="ring__gauge-track" cx="50" cy="50" r={GAUGE_RADIUS_PCT} pathLength={1} />
+          <circle
+            className={`ring__gauge-fill${Math.abs(turn) >= 0.999 ? ' is-full' : ''}`}
+            cx="50"
+            cy="50"
+            r={GAUGE_RADIUS_PCT}
             pathLength={1}
             style={{ strokeDasharray: `${Math.min(Math.abs(turn), 1)} 1` }}
           />
