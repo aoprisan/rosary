@@ -15,18 +15,27 @@ interface Props {
 const TAU = Math.PI * 2;
 /** Bead-centre radius as a fraction of the ring's box. */
 const RADIUS_PCT = 42;
+/**
+ * Pointer offsets nearer than this fraction of the box have no reliable
+ * bearing, so the stick's angle is held rather than tracked — this is the
+ * joystick's dead-centre.
+ */
+const DEAD_ZONE_PCT = 6;
+/** How far the joystick knob may throw from centre, as a fraction of the box. */
+const MAX_THROW_PCT = 9;
 
 /**
- * The prayer rope: beads arranged on a circle. You tell one bead by tracing a
- * full circle around the rope with one finger — a complete revolution advances
- * a single bead, reversing the loop retreats one. Partial circles are banked
- * and carry across separate strokes, so you can close a circle over several
- * finger movements. The arrow keys and the Previous/Next buttons remain for
- * keyboard and accessibility. Beads start at twelve o'clock and run clockwise.
+ * The prayer rope: beads arranged on a circle, told with a joystick at its
+ * heart. Press the centre and circle it round like a thumb-stick — the knob
+ * leans toward your finger and a complete revolution tells a single bead,
+ * reversing the loop retreats one. Partial circles bank as a progress arc and
+ * carry across separate strokes, so a circle may be closed over several
+ * movements. The arrow keys and the Previous/Next buttons remain for keyboard
+ * and accessibility. Beads start at twelve o'clock and run clockwise.
  */
 export function BeadRing({ count, activeIndex, lang, onStep }: Props) {
   const ringRef = useRef<HTMLDivElement>(null);
-  // The active stroke's last pointer angle; null between strokes.
+  // The active stroke's last stick angle; null between strokes.
   const drag = useRef<{ last: number } | null>(null);
   // Banked rotation toward the next bead — persists across separate strokes.
   const acc = useRef(0);
@@ -34,6 +43,9 @@ export function BeadRing({ count, activeIndex, lang, onStep }: Props) {
   // Signed fraction (-1..1) of the current revolution traced so far, for the
   // progress arc. Resets only when a bead ticks over; held between strokes.
   const [turn, setTurn] = useState(0);
+  // Knob throw from centre in pixels — the joystick's visible lean.
+  const [knob, setKnob] = useState({ x: 0, y: 0 });
+  const [held, setHeld] = useState(false);
 
   // Track the ring's pixel size so beads can be scaled to fit the count.
   useEffect(() => {
@@ -52,28 +64,44 @@ export function BeadRing({ count, activeIndex, lang, onStep }: Props) {
   const gap = (TAU * radiusPx) / count; // arc length between bead centres
   const beadSize = Math.max(7, Math.min(30, gap * 0.72));
 
-  function angleAt(clientX: number, clientY: number): number {
+  /** Pointer position relative to the ring's centre, in polar + cartesian form. */
+  function vectorAt(clientX: number, clientY: number) {
     const rect = ringRef.current!.getBoundingClientRect();
     const cx = rect.left + rect.width / 2;
     const cy = rect.top + rect.height / 2;
-    return Math.atan2(clientY - cy, clientX - cx);
+    const dx = clientX - cx;
+    const dy = clientY - cy;
+    return { dx, dy, dist: Math.hypot(dx, dy), angle: Math.atan2(dy, dx), box: rect.width };
+  }
+
+  /** Lean the knob toward the pointer, clamped to the stick's throw. */
+  function leanKnob(dx: number, dy: number, dist: number, box: number) {
+    const maxPx = (box * MAX_THROW_PCT) / 100;
+    const k = dist > maxPx ? maxPx / dist : 1;
+    setKnob({ x: dx * k, y: dy * k });
   }
 
   function onPointerDown(e: React.PointerEvent) {
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-    drag.current = { last: angleAt(e.clientX, e.clientY) };
+    const v = vectorAt(e.clientX, e.clientY);
+    drag.current = { last: v.angle };
+    setHeld(true);
+    leanKnob(v.dx, v.dy, v.dist, v.box);
   }
 
   function onPointerMove(e: React.PointerEvent) {
     const d = drag.current;
     if (!d) return;
-    const a = angleAt(e.clientX, e.clientY);
-    let delta = a - d.last;
+    const v = vectorAt(e.clientX, e.clientY);
+    leanKnob(v.dx, v.dy, v.dist, v.box);
+    // Too near dead-centre to read a bearing: hold the angle this frame.
+    if (v.dist < (v.box * DEAD_ZONE_PCT) / 100) return;
+    let delta = v.angle - d.last;
     if (delta > Math.PI) delta -= TAU;
     if (delta < -Math.PI) delta += TAU;
-    d.last = a;
+    d.last = v.angle;
     let next = acc.current + delta;
-    // One whole revolution of the rope tells exactly one bead.
+    // One whole revolution of the stick tells exactly one bead.
     while (next >= TAU) {
       onStep(1);
       next -= TAU;
@@ -90,7 +118,10 @@ export function BeadRing({ count, activeIndex, lang, onStep }: Props) {
     const el = e.currentTarget as HTMLElement;
     if (el.hasPointerCapture(e.pointerId)) el.releasePointerCapture(e.pointerId);
     drag.current = null;
-    // Partial progress is kept — the next stroke continues the same circle.
+    setHeld(false);
+    // The stick springs back to centre; partial progress is kept, so the next
+    // stroke continues the same circle.
+    setKnob({ x: 0, y: 0 });
   }
 
   function onKeyDown(e: React.KeyboardEvent) {
@@ -153,7 +184,11 @@ export function BeadRing({ count, activeIndex, lang, onStep }: Props) {
             style={{ strokeDasharray: `${Math.min(Math.abs(turn), 1)} 1` }}
           />
         </svg>
-        <div className="ring__center" aria-hidden="true">
+        <div
+          className={`ring__center${held ? ' is-held' : ''}`}
+          aria-hidden="true"
+          style={{ transform: `translate(calc(-50% + ${knob.x}px), calc(-50% + ${knob.y}px))` }}
+        >
           <span className="ring__count">{activeIndex + 1}</span>
           <span className="ring__total">/ {count}</span>
         </div>

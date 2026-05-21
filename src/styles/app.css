@@ -537,6 +537,15 @@
   border: 1px solid var(--ink-faint);
   background: radial-gradient(circle at 50% 38%, var(--paper-bright), var(--paper-shade) 92%);
   box-shadow: var(--shadow-press);
+  /* The joystick knob springs back to centre when released. */
+  transition: transform 300ms var(--ease-out-quint), box-shadow var(--dur-fast);
+}
+/* While gripped the knob tracks the finger with no lag, and presses in. */
+.ring__center.is-held {
+  transition: box-shadow var(--dur-fast);
+  border-color: var(--rubric);
+  box-shadow: var(--shadow-press), inset 0 0 0 1px var(--rubric-wash),
+    0 0 12px 1px rgba(157, 42, 25, 0.18);
 }
 .ring__count {
   font-family: var(--font-body);
