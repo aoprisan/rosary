@@ -1,0 +1,16 @@
+node_modules
+dist
+dist-ssr
+build
+*.tsbuildinfo
+.DS_Store
+*.local
+.vite
+.idea
+.vscode/*
+!.vscode/extensions.json
+tmp
+__pycache__
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

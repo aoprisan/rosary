@@ -1,0 +1,549 @@
+/* ─────────────────────────────────────────────────────────────────────
+   Layout shell
+   ───────────────────────────────────────────────────────────────────── */
+.app {
+  position: relative;
+  z-index: 0;
+  display: flex;
+  flex-direction: column;
+  max-width: 720px;
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: clamp(1rem, 4vw, 2.5rem) clamp(1rem, 4vw, 2rem) 2rem;
+}
+
+.footer {
+  margin-top: auto;
+  padding-top: var(--space-8);
+  text-align: center;
+  font-family: var(--font-accent);
+  font-style: italic;
+  color: var(--parchment-shadow);
+  font-size: 0.85rem;
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   Masthead + language selector
+   ───────────────────────────────────────────────────────────────────── */
+.masthead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-8);
+  animation: rise var(--dur-slow) var(--ease-out-quint) both;
+}
+
+.masthead__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.masthead__cross {
+  font-size: 2.1rem;
+  color: var(--gold-bright);
+  text-shadow: var(--shadow-gold);
+}
+
+.masthead__title {
+  font-family: var(--font-decorative);
+  font-size: clamp(1.7rem, 6vw, 2.5rem);
+  color: var(--gold-bright);
+  letter-spacing: 0.05em;
+  line-height: 1;
+}
+
+.masthead__subtitle {
+  margin: 0.25rem 0 0;
+  font-family: var(--font-accent);
+  font-style: italic;
+  color: var(--parchment-shadow);
+}
+
+.lang-selector {
+  display: inline-flex;
+  flex: 0 0 auto;
+  border: 1px solid rgba(201, 162, 39, 0.4);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.lang-selector button {
+  padding: 0.4rem 0.75rem;
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  color: var(--parchment-shadow);
+  transition: background var(--dur-fast), color var(--dur-fast);
+}
+
+.lang-selector button[aria-pressed='true'] {
+  background: radial-gradient(circle at 50% 0%, var(--gold-bright), var(--gold-leaf));
+  color: var(--ink);
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   Setup screen
+   ───────────────────────────────────────────────────────────────────── */
+.panel {
+  margin-bottom: var(--space-5);
+  padding: var(--space-5);
+  border: 1px solid rgba(201, 162, 39, 0.22);
+  border-radius: var(--radius);
+  background: linear-gradient(160deg, rgba(243, 231, 201, 0.06), rgba(243, 231, 201, 0.015));
+  box-shadow: var(--shadow-vellum);
+  animation: rise var(--dur-slow) var(--ease-out-quint) both;
+}
+.panel:nth-of-type(2) {
+  animation-delay: 80ms;
+}
+
+.panel__heading {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  color: var(--parchment);
+}
+
+.panel__hint {
+  margin: 0.25rem 0 var(--space-4);
+  font-style: italic;
+  color: var(--parchment-shadow);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+  min-width: 88px;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid rgba(201, 162, 39, 0.35);
+  border-radius: var(--radius);
+  background: rgba(0, 0, 0, 0.25);
+  color: var(--parchment);
+  transition: border-color var(--dur-fast), box-shadow var(--dur-fast),
+    background var(--dur-fast), color var(--dur-fast);
+}
+
+.chip[data-selected] {
+  border-color: var(--gold-bright);
+  background: radial-gradient(circle at 50% 0%, var(--gold-bright), var(--gold-leaf) 75%);
+  color: var(--ink);
+  box-shadow: var(--shadow-gold);
+}
+
+.chip__num {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.chip__unit {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  opacity: 0.85;
+}
+
+.chip--custom {
+  cursor: text;
+}
+
+.chip--custom input {
+  width: 76px;
+  margin-top: 0.1rem;
+  padding: 0;
+  border: none;
+  border-bottom: 1px solid currentColor;
+  background: transparent;
+  color: inherit;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  text-align: center;
+  -moz-appearance: textfield;
+}
+.chip--custom input::-webkit-outer-spin-button,
+.chip--custom input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.chip--custom input:focus {
+  outline: none;
+}
+
+.prayer-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.prayer-option {
+  display: grid;
+  width: 100%;
+  text-align: left;
+  gap: 0.1rem;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid rgba(201, 162, 39, 0.25);
+  border-radius: var(--radius);
+  background: rgba(0, 0, 0, 0.22);
+  transition: border-color var(--dur-fast), box-shadow var(--dur-fast),
+    background var(--dur-fast);
+}
+
+.prayer-option[data-selected] {
+  border-color: var(--gold-bright);
+  background: linear-gradient(120deg, rgba(201, 162, 39, 0.18), rgba(201, 162, 39, 0.05));
+  box-shadow: var(--shadow-gold);
+}
+
+.prayer-option__name {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  color: var(--gold-pale);
+}
+.prayer-option[data-selected] .prayer-option__name {
+  color: var(--gold-bright);
+}
+
+.prayer-option__kind {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--parchment-shadow);
+}
+
+.prayer-option__preview {
+  margin-top: 0.15rem;
+  font-style: italic;
+  color: var(--parchment);
+}
+
+.begin-btn {
+  display: block;
+  width: 100%;
+  margin-top: var(--space-4);
+  padding: var(--space-4);
+  border: none;
+  border-radius: var(--radius);
+  font-family: var(--font-decorative);
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--ink);
+  background: radial-gradient(
+    circle at 50% 0%,
+    var(--gold-highlight),
+    var(--gold-leaf) 60%,
+    var(--gold-deep)
+  );
+  box-shadow: var(--shadow-gold), var(--shadow-altar);
+  transition: transform var(--dur-fast) var(--ease-out-quint), filter var(--dur-fast);
+  animation: rise var(--dur-slow) var(--ease-out-quint) 160ms both;
+}
+.begin-btn:hover {
+  filter: brightness(1.06);
+}
+.begin-btn:active {
+  transform: scale(0.98);
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   Session screen
+   ───────────────────────────────────────────────────────────────────── */
+.session {
+  display: flex;
+  flex-direction: column;
+  animation: rise var(--dur-base) var(--ease-out-quint) both;
+}
+
+.session__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
+}
+
+.session__meta {
+  flex: 1;
+  text-align: center;
+  min-width: 0;
+}
+
+.session__prayer {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  color: var(--gold-pale);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.session__progress {
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  color: var(--parchment-shadow);
+}
+
+.ghost-btn {
+  flex: 0 0 auto;
+  padding: 0.4rem 0.7rem;
+  border: 1px solid rgba(201, 162, 39, 0.3);
+  border-radius: var(--radius);
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  color: var(--parchment);
+  transition: background var(--dur-fast);
+}
+.ghost-btn:hover {
+  background: rgba(201, 162, 39, 0.12);
+}
+
+.session__flash {
+  min-height: 1.4rem;
+  text-align: center;
+  font-family: var(--font-accent);
+  font-style: italic;
+  color: var(--gold-bright);
+  opacity: 0;
+  transition: opacity var(--dur-base);
+}
+.session__flash.is-on {
+  opacity: 1;
+}
+
+/* ── The prayer rope ─────────────────────────────────────────────── */
+.ring-wrap {
+  display: flex;
+  justify-content: center;
+  margin: var(--space-2) 0 var(--space-6);
+}
+
+.ring {
+  position: relative;
+  width: min(82vw, 400px);
+  aspect-ratio: 1;
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.ring:active {
+  cursor: grabbing;
+}
+.ring:focus-visible {
+  outline: 2px solid var(--gold-bright);
+  outline-offset: 8px;
+  border-radius: 50%;
+}
+
+.ring__cord {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.ring__cord circle {
+  fill: none;
+  stroke: rgba(201, 162, 39, 0.4);
+  stroke-width: 0.5;
+  stroke-dasharray: 0.4 1.6;
+  stroke-linecap: round;
+}
+
+.ring__center {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 46%;
+  height: 46%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid rgba(201, 162, 39, 0.28);
+  background: radial-gradient(circle at 50% 32%, rgba(58, 15, 23, 0.55), rgba(34, 8, 16, 0.85));
+  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.55);
+  transition: box-shadow var(--dur-fast);
+}
+.ring__center:hover {
+  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.55), var(--shadow-gold);
+}
+
+.ring__count {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 9vw, 3.1rem);
+  line-height: 1;
+  color: var(--gold-bright);
+}
+
+.ring__total {
+  margin-top: 0.2rem;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  color: var(--parchment-shadow);
+}
+
+.ring__cross {
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  transform: translate(-50%, -10%);
+  font-size: 1.7rem;
+  color: var(--gold-pale);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+}
+.ring__cross::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  width: 1px;
+  height: 0.7rem;
+  background: rgba(201, 162, 39, 0.5);
+  transform: translateX(-50%);
+}
+
+.bead {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  padding: 0;
+  background: radial-gradient(
+    circle at 35% 30%,
+    var(--gold-highlight),
+    var(--gold-leaf) 55%,
+    var(--gold-deep)
+  );
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5), inset 0 -1px 2px rgba(0, 0, 0, 0.35);
+  transition: transform var(--dur-fast) var(--ease-out-quint);
+}
+.bead:hover {
+  transform: translate(-50%, -50%) scale(1.18);
+}
+.bead[data-active] {
+  z-index: 3;
+  transform: translate(-50%, -50%) scale(1.55);
+  background: radial-gradient(circle at 35% 30%, #fff7d6, var(--gold-bright) 50%, var(--gold-leaf));
+  outline: 2px solid rgba(246, 225, 152, 0.55);
+  outline-offset: 2px;
+  animation: bead-pulse 2.6s var(--ease-in-out-sine) infinite;
+}
+
+.spin-hint {
+  margin: 0 0 var(--space-5);
+  text-align: center;
+  font-style: italic;
+  font-size: 0.85rem;
+  color: var(--parchment-shadow);
+}
+
+/* ── Prayer text card ────────────────────────────────────────────── */
+.prayer-card {
+  padding: var(--space-6) var(--space-5);
+  text-align: center;
+  border: 1px solid rgba(201, 162, 39, 0.25);
+  border-radius: var(--radius);
+  background: linear-gradient(160deg, rgba(243, 231, 201, 0.07), rgba(243, 231, 201, 0.02));
+  box-shadow: var(--shadow-vellum);
+}
+
+.prayer-card__title {
+  margin-bottom: var(--space-4);
+  font-family: var(--font-decorative);
+  font-size: 1.3rem;
+  color: var(--gold-pale);
+}
+
+.prayer-card__text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.prayer-card__line {
+  font-family: var(--font-body);
+  font-size: clamp(1.15rem, 3.6vw, 1.45rem);
+  line-height: 1.5;
+  color: var(--ivory);
+}
+
+/* ── Controls ────────────────────────────────────────────────────── */
+.controls {
+  display: flex;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+}
+
+.control-btn {
+  flex: 1;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid rgba(201, 162, 39, 0.4);
+  border-radius: var(--radius);
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  letter-spacing: 0.05em;
+  color: var(--parchment);
+  background: rgba(0, 0, 0, 0.25);
+  transition: background var(--dur-fast), transform var(--dur-fast);
+}
+.control-btn:hover {
+  background: rgba(201, 162, 39, 0.14);
+}
+.control-btn:active {
+  transform: scale(0.97);
+}
+
+.control-btn--reset {
+  flex: 0 0 auto;
+  color: var(--parchment-shadow);
+}
+
+.control-btn--next {
+  border-color: var(--gold-bright);
+  color: var(--ink);
+  background: radial-gradient(circle at 50% 0%, var(--gold-bright), var(--gold-leaf) 80%);
+}
+.control-btn--next:hover {
+  filter: brightness(1.06);
+  background: radial-gradient(circle at 50% 0%, var(--gold-bright), var(--gold-leaf) 80%);
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   Keyframes
+   ───────────────────────────────────────────────────────────────────── */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes bead-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 10px 1px rgba(232, 197, 82, 0.55);
+  }
+  50% {
+    box-shadow: 0 0 22px 5px rgba(232, 197, 82, 0.95);
+  }
+}
