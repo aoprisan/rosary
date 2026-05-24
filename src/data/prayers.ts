@@ -72,6 +72,32 @@ export const PRAYERS: Prayer[] = [
     },
   },
   {
+    id: 'axion',
+    name: { en: 'It Is Truly Meet', ro: 'Cuvine-se cu adevărat' },
+    kind: { en: 'Hymn to the Theotokos', ro: 'Axionul Maicii Domnului' },
+    lines: {
+      en: [
+        'It is truly meet to bless thee, O Theotokos,',
+        'ever-blessed and most pure,',
+        'and the Mother of our God.',
+        'More honorable than the cherubim,',
+        'and more glorious beyond compare than the seraphim;',
+        'without corruption thou gavest birth to God the Word.',
+        'True Theotokos, we magnify thee.',
+      ],
+      ro: [
+        'Cuvine-se cu adevărat să te fericim,',
+        'Născătoare de Dumnezeu,',
+        'cea pururea fericită și prea nevinovată',
+        'și Maica Dumnezeului nostru.',
+        'Ceea ce ești mai cinstită decât heruvimii',
+        'și mai mărită fără de asemănare decât serafimii,',
+        'care fără stricăciune pe Dumnezeu Cuvântul ai născut,',
+        'pe tine, cea cu adevărat Născătoare de Dumnezeu, te mărim.',
+      ],
+    },
+  },
+  {
     id: 'trisagion',
     name: { en: 'The Trisagion', ro: 'Sfinte Dumnezeule' },
     kind: { en: 'Thrice-Holy hymn', ro: 'Imnul întreit-sfânt' },
