@@ -1,16 +1,19 @@
 import { useEffect, useState } from 'react';
-import type { Lang, LayerSetting, PracticeSettings, Screen, SessionBound } from './types';
+import type { Lang, LayerSetting, Mode, PracticeSettings, Screen, SessionBound } from './types';
 import { SetupScreen } from './components/SetupScreen';
 import { SessionScreen } from './components/SessionScreen';
+import { BreathingScreen } from './components/BreathingScreen';
 import { DEFAULT_PRAYER_ID } from './data/prayers';
 import { DEFAULT_FORM_ID } from './data/practiceForms';
 import { t } from './i18n/strings';
-import { Ornament } from './components/Ornament';
+import { Ornament, Cross } from './components/Ornament';
+import { LangSelector } from './components/LangSelector';
 
 const LANG_KEY = 'rosary:lang';
 const BEADS_KEY = 'rosary:beads';
 const PRAYER_KEY = 'rosary:prayer';
 const PRACTICE_KEY = 'rosary:practice';
+const MODE_KEY = 'rosary:mode';
 
 const DEFAULT_PRACTICE: PracticeSettings = {
   formId: DEFAULT_FORM_ID,
@@ -92,7 +95,12 @@ function initialPractice(): PracticeSettings {
   }
 }
 
+function initialMode(): Mode {
+  return localStorage.getItem(MODE_KEY) === 'breathing' ? 'breathing' : 'rosary';
+}
+
 export function App() {
+  const [mode, setMode] = useState<Mode>(initialMode);
   const [screen, setScreen] = useState<Screen>('setup');
   const [lang, setLang] = useState<Lang>(detectInitialLang);
   const [beadCount, setBeadCount] = useState<number>(initialBeads);
@@ -114,6 +122,9 @@ export function App() {
   useEffect(() => {
     localStorage.setItem(PRACTICE_KEY, JSON.stringify(practice));
   }, [practice]);
+  useEffect(() => {
+    localStorage.setItem(MODE_KEY, mode);
+  }, [mode]);
 
   return (
     <div className="app">
@@ -121,27 +132,57 @@ export function App() {
       <Ornament variant="corner" className="corner corner--tr" />
       <Ornament variant="corner" className="corner corner--bl" />
       <Ornament variant="corner" className="corner corner--br" />
-      {screen === 'setup' ? (
-        <SetupScreen
-          lang={lang}
-          beadCount={beadCount}
-          prayerId={prayerId}
-          practice={practice}
-          onLangChange={setLang}
-          onBeadCount={setBeadCount}
-          onPrayer={setPrayerId}
-          onPractice={setPractice}
-          onBegin={() => setScreen('session')}
-        />
+
+      <div className="runninghead">
+        <Cross className="runninghead__mark" />
+        <span className="runninghead__label">{t('bookLabel', lang)}</span>
+        <LangSelector lang={lang} onChange={setLang} />
+      </div>
+
+      <div className="tabs tabs--mode" role="tablist" aria-label={t('tablistAria', lang)}>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={mode === 'rosary'}
+          className="tab"
+          data-selected={mode === 'rosary' || undefined}
+          onClick={() => setMode('rosary')}
+        >
+          {t('tabRosary', lang)}
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={mode === 'breathing'}
+          className="tab"
+          data-selected={mode === 'breathing' || undefined}
+          onClick={() => setMode('breathing')}
+        >
+          {t('tabBreathing', lang)}
+        </button>
+      </div>
+
+      {mode === 'rosary' ? (
+        screen === 'setup' ? (
+          <SetupScreen
+            lang={lang}
+            beadCount={beadCount}
+            prayerId={prayerId}
+            onBeadCount={setBeadCount}
+            onPrayer={setPrayerId}
+            onBegin={() => setScreen('session')}
+          />
+        ) : (
+          <SessionScreen
+            lang={lang}
+            config={{ beadCount, prayerId }}
+            onExit={() => setScreen('setup')}
+          />
+        )
       ) : (
-        <SessionScreen
-          lang={lang}
-          config={{ beadCount, prayerId }}
-          practice={practice}
-          onLangChange={setLang}
-          onExit={() => setScreen('setup')}
-        />
+        <BreathingScreen lang={lang} practice={practice} onPractice={setPractice} />
       )}
+
       <Ornament variant="tailpiece" className="footer__tailpiece" />
       <footer className="footer">{t('footer', lang)}</footer>
     </div>

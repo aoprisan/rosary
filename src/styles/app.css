@@ -535,6 +535,22 @@
   background: var(--rubric-wash);
   box-shadow: inset 0 0 0 1px var(--rubric);
 }
+/* Top-level mode tabs (Rosary | Breathing) — the app's primary navigation. */
+.tabs--mode {
+  margin: 0 0 var(--space-7);
+  animation: ink-in var(--dur-slow) var(--ease-out-quint) 40ms both;
+}
+.tabs--mode .tab {
+  flex: 1 1 0;
+  max-width: 13rem;
+  font-size: 1.05rem;
+}
+
+.breathing {
+  display: flex;
+  flex-direction: column;
+  animation: ink-in var(--dur-base) var(--ease-out-quint) both;
+}
 
 .session__flash {
   display: flex;

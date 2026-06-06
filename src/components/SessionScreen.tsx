@@ -1,23 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
-import type { Lang, PracticeSettings, SessionConfig } from '../types';
+import type { Lang, SessionConfig } from '../types';
 import { t } from '../i18n/strings';
 import { loc } from '../i18n/loc';
 import { getPrayer } from '../data/prayers';
-import { getPracticeForm, CUSTOM_FORM_ID } from '../data/practiceForms';
-import { useAmbientMixer, LAYER_FILES } from '../audio/useAmbientMixer';
 import { BeadRing } from './BeadRing';
-import { BreathGuide } from './BreathGuide';
-import { PracticeNote } from './PracticeNote';
 import { PrayerCard } from './PrayerCard';
-import { LangSelector } from './LangSelector';
 
 const PROGRESS_KEY = 'rosary:progress';
 
 interface Props {
   lang: Lang;
   config: SessionConfig;
-  practice: PracticeSettings;
-  onLangChange: (lang: Lang) => void;
   onExit: () => void;
 }
 
@@ -25,9 +18,6 @@ interface Progress {
   index: number;
   laps: number;
 }
-
-/** The two panels, switched by the tab bar. */
-type Tab = 'rosary' | 'breathing';
 
 /** Restore progress only if it belongs to the same prayer and bead count. */
 function loadProgress(config: SessionConfig): Progress {
@@ -52,13 +42,11 @@ function loadProgress(config: SessionConfig): Progress {
   return { index: 0, laps: 0 };
 }
 
-export function SessionScreen({ lang, config, practice, onLangChange, onExit }: Props) {
+export function SessionScreen({ lang, config, onExit }: Props) {
   const prayer = getPrayer(config.prayerId);
   const [{ index, laps }, setProgress] = useState<Progress>(() => loadProgress(config));
   const [flash, setFlash] = useState(false);
-  const [tab, setTab] = useState<Tab>('rosary');
   const prevLaps = useRef(laps);
-  const mixer = useAmbientMixer();
 
   useEffect(() => {
     localStorage.setItem(
@@ -72,18 +60,16 @@ export function SessionScreen({ lang, config, practice, onLangChange, onExit }: 
     );
   }, [config.prayerId, config.beadCount, index, laps]);
 
-  // Flash a "circuit complete" notice whenever a new lap begins; sound a soft
-  // tap there too, if asked. The tap is driven by the counter — it never moves it.
+  // Flash a "circuit complete" notice whenever a new lap begins.
   useEffect(() => {
     if (laps > prevLaps.current) {
       setFlash(true);
-      if (practice.tapOn) mixer.playTap();
       const id = window.setTimeout(() => setFlash(false), 2400);
       prevLaps.current = laps;
       return () => window.clearTimeout(id);
     }
     prevLaps.current = laps;
-  }, [laps, practice.tapOn, mixer]);
+  }, [laps]);
 
   const step = (dir: 1 | -1) =>
     setProgress((prev) => {
@@ -105,38 +91,6 @@ export function SessionScreen({ lang, config, practice, onLangChange, onExit }: 
     setProgress({ index: 0, laps: 0 });
   };
 
-  const form = getPracticeForm(practice.formId);
-  const inhaleText =
-    practice.formId === CUSTOM_FORM_ID ? practice.customInhale.trim() : form ? loc(form.inhale, lang) : '';
-  const exhaleText =
-    practice.formId === CUSTOM_FORM_ID ? practice.customExhale.trim() : form ? loc(form.exhale, lang) : '';
-
-  // Start the ambience for a breathing session. The tab click is the user
-  // gesture that lets us resume the audio context (autoplay policy).
-  const startAmbience = async () => {
-    await mixer.resume();
-    for (const id of Object.keys(LAYER_FILES)) {
-      const layer = practice.layers[id];
-      if (!layer) continue;
-      mixer.setVolume(id, layer.volume);
-      mixer.setLayer(id, layer.on);
-    }
-  };
-
-  // Switch panels. Entering Breathing starts the ambience; leaving fades it out.
-  const selectTab = (next: Tab) => {
-    if (next === tab) return;
-    if (next === 'breathing') void startAmbience();
-    else void mixer.fadeOutAll(1800);
-    setTab(next);
-  };
-
-  // A bounded session reached its end: a soft tone, then fade gently away.
-  const onBoundEnd = () => {
-    if (practice.tapOn) mixer.playTap(0.5);
-    void mixer.fadeOutAll(2200);
-  };
-
   return (
     <div className="session">
       <header className="session__bar">
@@ -145,100 +99,44 @@ export function SessionScreen({ lang, config, practice, onLangChange, onExit }: 
         </button>
         <div className="session__meta">
           <span className="session__prayer">{loc(prayer.name, lang)}</span>
-          {tab === 'rosary' && (
-            <span className="session__progress">
-              {t('beadLabel', lang)} {index + 1} / {config.beadCount}
-              {laps > 0 ? ` · ${t('circuitsLabel', lang)} ${laps}` : ''}
-            </span>
-          )}
+          <span className="session__progress">
+            {t('beadLabel', lang)} {index + 1} / {config.beadCount}
+            {laps > 0 ? ` · ${t('circuitsLabel', lang)} ${laps}` : ''}
+          </span>
         </div>
-        <LangSelector lang={lang} onChange={onLangChange} />
       </header>
 
-      <div className="tabs" role="tablist" aria-label={t('tablistAria', lang)}>
-        <button
-          type="button"
-          role="tab"
-          id="tab-rosary"
-          aria-selected={tab === 'rosary'}
-          aria-controls="panel-rosary"
-          className="tab"
-          data-selected={tab === 'rosary' || undefined}
-          onClick={() => selectTab('rosary')}
-        >
-          {t('tabRosary', lang)}
-        </button>
-        <button
-          type="button"
-          role="tab"
-          id="tab-breathing"
-          aria-selected={tab === 'breathing'}
-          aria-controls="panel-breathing"
-          className="tab"
-          data-selected={tab === 'breathing' || undefined}
-          onClick={() => selectTab('breathing')}
-        >
-          {t('tabBreathing', lang)}
-        </button>
+      <div className={`session__flash${flash ? ' is-on' : ''}`} role="status" aria-live="polite">
+        {flash ? t('circuitComplete', lang) : ''}
       </div>
 
-      {tab === 'rosary' ? (
-        <div id="panel-rosary" role="tabpanel" aria-labelledby="tab-rosary">
-          <div
-            className={`session__flash${flash ? ' is-on' : ''}`}
-            role="status"
-            aria-live="polite"
-          >
-            {flash ? t('circuitComplete', lang) : ''}
-          </div>
+      <BeadRing count={config.beadCount} activeIndex={index} lang={lang} onStep={step} />
 
-          <BeadRing count={config.beadCount} activeIndex={index} lang={lang} onStep={step} />
+      <p className="spin-hint">{t('spinHint', lang)}</p>
 
-          <p className="spin-hint">{t('spinHint', lang)}</p>
+      <PrayerCard prayer={prayer} lang={lang} />
 
-          <PrayerCard prayer={prayer} lang={lang} />
-
-          <div className="controls">
-            <button
-              type="button"
-              className="control-btn"
-              onClick={() => step(-1)}
-              aria-label={t('prevBeadAria', lang)}
-            >
-              ‹ {t('previous', lang)}
-            </button>
-            <button type="button" className="control-btn control-btn--reset" onClick={reset}>
-              {t('reset', lang)}
-            </button>
-            <button
-              type="button"
-              className="control-btn control-btn--next"
-              onClick={() => step(1)}
-              aria-label={t('nextBeadAria', lang)}
-            >
-              {t('next', lang)} ›
-            </button>
-          </div>
-        </div>
-      ) : (
-        <div id="panel-breathing" role="tabpanel" aria-labelledby="tab-breathing">
-          <BreathGuide
-            lang={lang}
-            inhaleText={inhaleText}
-            exhaleText={exhaleText}
-            inhaleMs={practice.inhaleMs}
-            holdMs={practice.holdMs}
-            exhaleMs={practice.exhaleMs}
-            hapticsOn={practice.hapticsOn}
-            syncToCounter={practice.syncToCounter}
-            bound={practice.bound}
-            onCycleComplete={() => step(1)}
-            onEnd={onBoundEnd}
-            onClose={() => selectTab('rosary')}
-          />
-          <PracticeNote lang={lang} />
-        </div>
-      )}
+      <div className="controls">
+        <button
+          type="button"
+          className="control-btn"
+          onClick={() => step(-1)}
+          aria-label={t('prevBeadAria', lang)}
+        >
+          ‹ {t('previous', lang)}
+        </button>
+        <button type="button" className="control-btn control-btn--reset" onClick={reset}>
+          {t('reset', lang)}
+        </button>
+        <button
+          type="button"
+          className="control-btn control-btn--next"
+          onClick={() => step(1)}
+          aria-label={t('nextBeadAria', lang)}
+        >
+          {t('next', lang)} ›
+        </button>
+      </div>
     </div>
   );
 }

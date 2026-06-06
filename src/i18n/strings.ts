@@ -37,6 +37,10 @@ const en: Dict = {
   beadAria: 'Bead',
   footer: 'Pray without ceasing — 1 Thessalonians 5:17',
 
+  // Breathing screen header
+  breathingTitle: 'Breathing',
+  breathingLead: 'A paced breath to carry the prayer.',
+
   // Practice — settings
   practiceHeading: 'Breath & sound',
   practiceHint: 'A breathing guide and quiet ambience for the prayer. All gentle, all optional.',
@@ -113,6 +117,10 @@ const ro: Dict = {
   ropeAria: 'Șirag de rugăciune — învârte centrul ca pe un joystick pentru a număra mărgele sau folosește tastele săgeți',
   beadAria: 'Mărgea',
   footer: 'Rugați-vă neîncetat — 1 Tesaloniceni 5:17',
+
+  // Breathing screen header
+  breathingTitle: 'Respirație',
+  breathingLead: 'O respirație ritmată care poartă rugăciunea.',
 
   // Practice — settings
   practiceHeading: 'Respirație și sunet',

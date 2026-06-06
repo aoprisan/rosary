@@ -147,14 +147,6 @@ export function PracticePanel({ lang, practice, onPractice }: Props) {
             </div>
           );
         })}
-        <label className="practice-toggle">
-          <input
-            type="checkbox"
-            checked={practice.tapOn}
-            onChange={(e) => set({ tapOn: e.target.checked })}
-          />
-          <span>{t('tapLabel', lang)}</span>
-        </label>
       </div>
 
       {/* Quiet toggles */}
@@ -166,14 +158,6 @@ export function PracticePanel({ lang, practice, onPractice }: Props) {
             onChange={(e) => set({ hapticsOn: e.target.checked })}
           />
           <span>{t('hapticsLabel', lang)}</span>
-        </label>
-        <label className="practice-toggle">
-          <input
-            type="checkbox"
-            checked={practice.syncToCounter}
-            onChange={(e) => set({ syncToCounter: e.target.checked })}
-          />
-          <span>{t('syncLabel', lang)}</span>
         </label>
       </div>
 

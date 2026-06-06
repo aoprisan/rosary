@@ -1,9 +1,7 @@
-import type { Lang, PracticeSettings } from '../types';
+import type { Lang } from '../types';
 import { t } from '../i18n/strings';
 import { loc } from '../i18n/loc';
 import { PRAYERS } from '../data/prayers';
-import { LangSelector } from './LangSelector';
-import { PracticePanel } from './PracticePanel';
 import { Ornament, Cross } from './Ornament';
 
 const PRESETS = [33, 50, 100];
@@ -12,35 +10,16 @@ interface Props {
   lang: Lang;
   beadCount: number;
   prayerId: string;
-  practice: PracticeSettings;
-  onLangChange: (lang: Lang) => void;
   onBeadCount: (n: number) => void;
   onPrayer: (id: string) => void;
-  onPractice: (next: PracticeSettings) => void;
   onBegin: () => void;
 }
 
-export function SetupScreen({
-  lang,
-  beadCount,
-  prayerId,
-  practice,
-  onLangChange,
-  onBeadCount,
-  onPrayer,
-  onPractice,
-  onBegin,
-}: Props) {
+export function SetupScreen({ lang, beadCount, prayerId, onBeadCount, onPrayer, onBegin }: Props) {
   const isPreset = PRESETS.includes(beadCount);
 
   return (
     <div className="setup">
-      <div className="runninghead">
-        <Cross className="runninghead__mark" />
-        <span className="runninghead__label">{t('bookLabel', lang)}</span>
-        <LangSelector lang={lang} onChange={onLangChange} />
-      </div>
-
       <header className="masthead">
         <Ornament variant="headpiece" />
         <h1 className="masthead__title">{t('appTitle', lang)}</h1>
@@ -108,8 +87,6 @@ export function SetupScreen({
           })}
         </ul>
       </section>
-
-      <PracticePanel lang={lang} practice={practice} onPractice={onPractice} />
 
       <button type="button" className="begin-btn" onClick={onBegin}>
         <Cross />

@@ -14,13 +14,10 @@ interface Props {
   holdMs: number;
   exhaleMs: number;
   hapticsOn: boolean;
-  syncToCounter: boolean;
   bound: SessionBound;
-  /** Called on each completed breath when sync is on — wire to step(+1). */
-  onCycleComplete: () => void;
   /** Called once when a bounded session reaches its end (for the audio fade). */
   onEnd: () => void;
-  /** Dismiss the breath guide and return to the rope. */
+  /** Dismiss the breath guide and return to the settings. */
   onClose: () => void;
 }
 
@@ -68,9 +65,7 @@ export function BreathGuide({
   holdMs,
   exhaleMs,
   hapticsOn,
-  syncToCounter,
   bound,
-  onCycleComplete,
   onEnd,
   onClose,
 }: Props) {
@@ -82,10 +77,10 @@ export function BreathGuide({
   useWakeLock(!ended);
 
   // Live config, read inside the loop so identity churn never resets the breath.
-  const cfg = useRef({ inhaleMs, holdMs, exhaleMs, hapticsOn, syncToCounter, bound });
-  cfg.current = { inhaleMs, holdMs, exhaleMs, hapticsOn, syncToCounter, bound };
-  const cb = useRef({ onCycleComplete, onEnd });
-  cb.current = { onCycleComplete, onEnd };
+  const cfg = useRef({ inhaleMs, holdMs, exhaleMs, hapticsOn, bound });
+  cfg.current = { inhaleMs, holdMs, exhaleMs, hapticsOn, bound };
+  const cb = useRef({ onEnd });
+  cb.current = { onEnd };
 
   useEffect(() => {
     if (ended) return;
@@ -95,7 +90,7 @@ export function BreathGuide({
     let raf = 0;
 
     const tick = (now: number) => {
-      const { inhaleMs, holdMs, exhaleMs, hapticsOn, syncToCounter, bound } = cfg.current;
+      const { inhaleMs, holdMs, exhaleMs, hapticsOn, bound } = cfg.current;
       const cycleMs = inhaleMs + exhaleMs + (holdMs > 0 ? holdMs * 2 : 0);
       const elapsed = now - start;
 
@@ -103,7 +98,6 @@ export function BreathGuide({
       if (cycle > lastCycle) {
         lastCycle = cycle;
         setBreaths(cycle);
-        if (syncToCounter) cb.current.onCycleComplete();
         if (bound.kind === 'knots' && cycle >= bound.count) {
           setEnded(true);
           cb.current.onEnd();

@@ -21,6 +21,9 @@ export interface SessionConfig {
 
 export type Screen = 'setup' | 'session';
 
+/** The two top-level panels the app is split into. */
+export type Mode = 'rosary' | 'breathing';
+
 /**
  * A breathing "form": the prayer split across an inhale and an exhale phrase.
  * Standalone — chosen in the Practice settings, independent of which prayer is
