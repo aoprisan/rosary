@@ -76,6 +76,7 @@ export function BreathGuide({
 }: Props) {
   const reduced = useReducedMotion();
   const [phase, setPhase] = useState<Phase>('inhale');
+  const [breaths, setBreaths] = useState(0);
   const [ended, setEnded] = useState(false);
   const orbRef = useRef<HTMLDivElement>(null);
   useWakeLock(!ended);
@@ -101,6 +102,7 @@ export function BreathGuide({
       const cycle = Math.floor(elapsed / cycleMs);
       if (cycle > lastCycle) {
         lastCycle = cycle;
+        setBreaths(cycle);
         if (syncToCounter) cb.current.onCycleComplete();
         if (bound.kind === 'knots' && cycle >= bound.count) {
           setEnded(true);
@@ -155,6 +157,11 @@ export function BreathGuide({
           <p className="breath__phrase" aria-live="polite">
             {phrase || phaseWord}
           </p>
+          {breaths > 0 && (
+            <p className="breath__count" aria-live="off">
+              {breaths} {t('knotsUnit', lang)}
+            </p>
+          )}
           <button type="button" className="ghost-btn breath__stop" onClick={onClose}>
             {t('breathStop', lang)}
           </button>

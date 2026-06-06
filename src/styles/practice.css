@@ -132,42 +132,25 @@
   accent-color: var(--gold-deep);
 }
 
-/* ── Begin-breathing call ───────────────────────────────────────────── */
-.breath-begin {
-  display: block;
-  margin: var(--space-4) auto var(--space-6);
-  padding: var(--space-2) var(--space-5);
-  border: 1px solid var(--rubric);
-  border-radius: var(--radius);
-  background: var(--rubric-wash);
-  color: var(--rubric);
-  font-variant-caps: small-caps;
-  letter-spacing: 0.06em;
-  font-size: 1.05rem;
-  transition: background var(--dur-fast), color var(--dur-fast);
-}
-.breath-begin:hover {
-  background: var(--rubric);
-  color: var(--paper-bright);
-}
-
-/* ── The breathing guide overlay ────────────────────────────────────── */
+/* ── The breathing panel ────────────────────────────────────────────── */
+/* An inline panel (not a takeover): a single quiet form rests on a near-dark
+   ground within the leaf, the calm counterpart to the rosary panel. */
 .breath {
-  position: fixed;
-  inset: 0;
-  z-index: 40;
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: var(--space-5);
-  padding: var(--space-8);
-  /* The leaf is dimmed; one quiet form rests on a near-dark ground. */
+  min-height: min(70vh, 34rem);
+  padding: var(--space-8) var(--space-6);
+  border-radius: var(--radius);
   background:
-    radial-gradient(ellipse 70% 50% at 50% 50%, rgba(42, 63, 115, 0.32), transparent 70%),
+    radial-gradient(ellipse 70% 50% at 50% 45%, rgba(42, 63, 115, 0.32), transparent 70%),
     rgba(12, 9, 5, 0.92);
   color: var(--paper);
   text-align: center;
+  box-shadow: var(--shadow-page);
   animation: breath-fade var(--dur-slow) var(--ease-out-quint) both;
 }
 @keyframes breath-fade {
@@ -214,6 +197,14 @@
   font-size: 1.5rem;
   line-height: 1.5;
   color: var(--paper);
+}
+.breath__count {
+  margin: 0;
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.18em;
+  font-size: 0.85rem;
+  color: var(--gold-pale);
+  opacity: 0.85;
 }
 .breath__stop {
   margin-top: var(--space-4);

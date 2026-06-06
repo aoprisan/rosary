@@ -26,6 +26,9 @@ interface Progress {
   laps: number;
 }
 
+/** The two panels, switched by the tab bar. */
+type Tab = 'rosary' | 'breathing';
+
 /** Restore progress only if it belongs to the same prayer and bead count. */
 function loadProgress(config: SessionConfig): Progress {
   try {
@@ -53,7 +56,7 @@ export function SessionScreen({ lang, config, practice, onLangChange, onExit }: 
   const prayer = getPrayer(config.prayerId);
   const [{ index, laps }, setProgress] = useState<Progress>(() => loadProgress(config));
   const [flash, setFlash] = useState(false);
-  const [breathing, setBreathing] = useState(false);
+  const [tab, setTab] = useState<Tab>('rosary');
   const prevLaps = useRef(laps);
   const mixer = useAmbientMixer();
 
@@ -108,9 +111,9 @@ export function SessionScreen({ lang, config, practice, onLangChange, onExit }: 
   const exhaleText =
     practice.formId === CUSTOM_FORM_ID ? practice.customExhale.trim() : form ? loc(form.exhale, lang) : '';
 
-  // Begin breathing — the user gesture that lets us resume the audio context
-  // (autoplay policy) and start the chosen ambient layers.
-  const beginBreathing = async () => {
+  // Start the ambience for a breathing session. The tab click is the user
+  // gesture that lets us resume the audio context (autoplay policy).
+  const startAmbience = async () => {
     await mixer.resume();
     for (const id of Object.keys(LAYER_FILES)) {
       const layer = practice.layers[id];
@@ -118,12 +121,14 @@ export function SessionScreen({ lang, config, practice, onLangChange, onExit }: 
       mixer.setVolume(id, layer.volume);
       mixer.setLayer(id, layer.on);
     }
-    setBreathing(true);
   };
 
-  const closeBreathing = () => {
-    void mixer.fadeOutAll(1800);
-    setBreathing(false);
+  // Switch panels. Entering Breathing starts the ambience; leaving fades it out.
+  const selectTab = (next: Tab) => {
+    if (next === tab) return;
+    if (next === 'breathing') void startAmbience();
+    else void mixer.fadeOutAll(1800);
+    setTab(next);
   };
 
   // A bounded session reached its end: a soft tone, then fade gently away.
@@ -140,39 +145,83 @@ export function SessionScreen({ lang, config, practice, onLangChange, onExit }: 
         </button>
         <div className="session__meta">
           <span className="session__prayer">{loc(prayer.name, lang)}</span>
-          <span className="session__progress">
-            {t('beadLabel', lang)} {index + 1} / {config.beadCount}
-            {laps > 0 ? ` · ${t('circuitsLabel', lang)} ${laps}` : ''}
-          </span>
+          {tab === 'rosary' && (
+            <span className="session__progress">
+              {t('beadLabel', lang)} {index + 1} / {config.beadCount}
+              {laps > 0 ? ` · ${t('circuitsLabel', lang)} ${laps}` : ''}
+            </span>
+          )}
         </div>
         <LangSelector lang={lang} onChange={onLangChange} />
       </header>
 
-      <div
-        className={`session__flash${flash ? ' is-on' : ''}`}
-        role="status"
-        aria-live="polite"
-      >
-        {flash ? t('circuitComplete', lang) : ''}
+      <div className="tabs" role="tablist" aria-label={t('tablistAria', lang)}>
+        <button
+          type="button"
+          role="tab"
+          id="tab-rosary"
+          aria-selected={tab === 'rosary'}
+          aria-controls="panel-rosary"
+          className="tab"
+          data-selected={tab === 'rosary' || undefined}
+          onClick={() => selectTab('rosary')}
+        >
+          {t('tabRosary', lang)}
+        </button>
+        <button
+          type="button"
+          role="tab"
+          id="tab-breathing"
+          aria-selected={tab === 'breathing'}
+          aria-controls="panel-breathing"
+          className="tab"
+          data-selected={tab === 'breathing' || undefined}
+          onClick={() => selectTab('breathing')}
+        >
+          {t('tabBreathing', lang)}
+        </button>
       </div>
 
-      <BeadRing
-        count={config.beadCount}
-        activeIndex={index}
-        lang={lang}
-        onStep={step}
-      />
+      {tab === 'rosary' ? (
+        <div id="panel-rosary" role="tabpanel" aria-labelledby="tab-rosary">
+          <div
+            className={`session__flash${flash ? ' is-on' : ''}`}
+            role="status"
+            aria-live="polite"
+          >
+            {flash ? t('circuitComplete', lang) : ''}
+          </div>
 
-      <p className="spin-hint">{t('spinHint', lang)}</p>
+          <BeadRing count={config.beadCount} activeIndex={index} lang={lang} onStep={step} />
 
-      <button type="button" className="breath-begin" onClick={beginBreathing}>
-        {t('breathBegin', lang)}
-      </button>
+          <p className="spin-hint">{t('spinHint', lang)}</p>
 
-      <PrayerCard prayer={prayer} lang={lang} />
+          <PrayerCard prayer={prayer} lang={lang} />
 
-      {breathing && (
-        <>
+          <div className="controls">
+            <button
+              type="button"
+              className="control-btn"
+              onClick={() => step(-1)}
+              aria-label={t('prevBeadAria', lang)}
+            >
+              ‹ {t('previous', lang)}
+            </button>
+            <button type="button" className="control-btn control-btn--reset" onClick={reset}>
+              {t('reset', lang)}
+            </button>
+            <button
+              type="button"
+              className="control-btn control-btn--next"
+              onClick={() => step(1)}
+              aria-label={t('nextBeadAria', lang)}
+            >
+              {t('next', lang)} ›
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div id="panel-breathing" role="tabpanel" aria-labelledby="tab-breathing">
           <BreathGuide
             lang={lang}
             inhaleText={inhaleText}
@@ -185,33 +234,11 @@ export function SessionScreen({ lang, config, practice, onLangChange, onExit }: 
             bound={practice.bound}
             onCycleComplete={() => step(1)}
             onEnd={onBoundEnd}
-            onClose={closeBreathing}
+            onClose={() => selectTab('rosary')}
           />
           <PracticeNote lang={lang} />
-        </>
+        </div>
       )}
-
-      <div className="controls">
-        <button
-          type="button"
-          className="control-btn"
-          onClick={() => step(-1)}
-          aria-label={t('prevBeadAria', lang)}
-        >
-          ‹ {t('previous', lang)}
-        </button>
-        <button type="button" className="control-btn control-btn--reset" onClick={reset}>
-          {t('reset', lang)}
-        </button>
-        <button
-          type="button"
-          className="control-btn control-btn--next"
-          onClick={() => step(1)}
-          aria-label={t('nextBeadAria', lang)}
-        >
-          {t('next', lang)} ›
-        </button>
-      </div>
     </div>
   );
 }

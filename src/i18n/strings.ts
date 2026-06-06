@@ -21,6 +21,9 @@ const en: Dict = {
 
   // Session screen
   backToSetup: 'Setup',
+  tabRosary: 'Rosary',
+  tabBreathing: 'Breathing',
+  tablistAria: 'Choose rosary or breathing',
   beadLabel: 'Bead',
   circuitsLabel: 'Circuits',
   spinHint: 'Spin the centre like a joystick — a full circle tells one bead, then lift to tell the next.',
@@ -95,6 +98,9 @@ const ro: Dict = {
   begin: 'Începe șiragul',
 
   backToSetup: 'Înapoi',
+  tabRosary: 'Metanier',
+  tabBreathing: 'Respirație',
+  tablistAria: 'Alege metanierul sau respirația',
   beadLabel: 'Mărgea',
   circuitsLabel: 'Cercuri',
   spinHint: 'Învârte centrul ca pe un joystick — un cerc complet numără o mărgea, apoi ridică degetul pentru următoarea.',
