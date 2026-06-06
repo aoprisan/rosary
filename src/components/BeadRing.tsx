@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import type React from 'react';
 import type { Lang } from '../types';
 import { t } from '../i18n/strings';
+import { buzz } from '../util/haptics';
 import { Cross } from './Ornament';
 
 interface Props {
@@ -27,13 +28,6 @@ const DEAD_ZONE_PCT = 6;
 const MAX_THROW_PCT = 9;
 /** Notches felt per full revolution, for a ratcheting feel as the stick turns. */
 const DETENTS = 12;
-
-/** A short haptic pulse, where the device and browser allow it. */
-function buzz(ms: number) {
-  if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
-    navigator.vibrate(ms);
-  }
-}
 
 /**
  * The prayer rope: beads arranged on a circle, told with a joystick at its
