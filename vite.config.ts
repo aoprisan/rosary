@@ -32,8 +32,9 @@ export default defineConfig({
         ],
       },
       workbox: {
-        // Precache the built shell so the app opens offline.
-        globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
+        // Precache the built shell so the app opens offline — including the
+        // bundled ambient audio (see public/audio/).
+        globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2,wav,ogg}'],
         // The only network calls are Google Fonts — cache them at runtime.
         runtimeCaching: [
           {

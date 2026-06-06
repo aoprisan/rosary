@@ -1,9 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
-import type { Lang, SessionConfig } from '../types';
+import type { Lang, PracticeSettings, SessionConfig } from '../types';
 import { t } from '../i18n/strings';
 import { loc } from '../i18n/loc';
 import { getPrayer } from '../data/prayers';
+import { getPracticeForm, CUSTOM_FORM_ID } from '../data/practiceForms';
+import { useAmbientMixer, LAYER_FILES } from '../audio/useAmbientMixer';
 import { BeadRing } from './BeadRing';
+import { BreathGuide } from './BreathGuide';
+import { PracticeNote } from './PracticeNote';
 import { PrayerCard } from './PrayerCard';
 import { LangSelector } from './LangSelector';
 
@@ -12,6 +16,7 @@ const PROGRESS_KEY = 'rosary:progress';
 interface Props {
   lang: Lang;
   config: SessionConfig;
+  practice: PracticeSettings;
   onLangChange: (lang: Lang) => void;
   onExit: () => void;
 }
@@ -44,11 +49,13 @@ function loadProgress(config: SessionConfig): Progress {
   return { index: 0, laps: 0 };
 }
 
-export function SessionScreen({ lang, config, onLangChange, onExit }: Props) {
+export function SessionScreen({ lang, config, practice, onLangChange, onExit }: Props) {
   const prayer = getPrayer(config.prayerId);
   const [{ index, laps }, setProgress] = useState<Progress>(() => loadProgress(config));
   const [flash, setFlash] = useState(false);
+  const [breathing, setBreathing] = useState(false);
   const prevLaps = useRef(laps);
+  const mixer = useAmbientMixer();
 
   useEffect(() => {
     localStorage.setItem(
@@ -62,16 +69,18 @@ export function SessionScreen({ lang, config, onLangChange, onExit }: Props) {
     );
   }, [config.prayerId, config.beadCount, index, laps]);
 
-  // Flash a "circuit complete" notice whenever a new lap begins.
+  // Flash a "circuit complete" notice whenever a new lap begins; sound a soft
+  // tap there too, if asked. The tap is driven by the counter — it never moves it.
   useEffect(() => {
     if (laps > prevLaps.current) {
       setFlash(true);
+      if (practice.tapOn) mixer.playTap();
       const id = window.setTimeout(() => setFlash(false), 2400);
       prevLaps.current = laps;
       return () => window.clearTimeout(id);
     }
     prevLaps.current = laps;
-  }, [laps]);
+  }, [laps, practice.tapOn, mixer]);
 
   const step = (dir: 1 | -1) =>
     setProgress((prev) => {
@@ -91,6 +100,36 @@ export function SessionScreen({ lang, config, onLangChange, onExit }: Props) {
     prevLaps.current = 0;
     setFlash(false);
     setProgress({ index: 0, laps: 0 });
+  };
+
+  const form = getPracticeForm(practice.formId);
+  const inhaleText =
+    practice.formId === CUSTOM_FORM_ID ? practice.customInhale.trim() : form ? loc(form.inhale, lang) : '';
+  const exhaleText =
+    practice.formId === CUSTOM_FORM_ID ? practice.customExhale.trim() : form ? loc(form.exhale, lang) : '';
+
+  // Begin breathing — the user gesture that lets us resume the audio context
+  // (autoplay policy) and start the chosen ambient layers.
+  const beginBreathing = async () => {
+    await mixer.resume();
+    for (const id of Object.keys(LAYER_FILES)) {
+      const layer = practice.layers[id];
+      if (!layer) continue;
+      mixer.setVolume(id, layer.volume);
+      mixer.setLayer(id, layer.on);
+    }
+    setBreathing(true);
+  };
+
+  const closeBreathing = () => {
+    void mixer.fadeOutAll(1800);
+    setBreathing(false);
+  };
+
+  // A bounded session reached its end: a soft tone, then fade gently away.
+  const onBoundEnd = () => {
+    if (practice.tapOn) mixer.playTap(0.5);
+    void mixer.fadeOutAll(2200);
   };
 
   return (
@@ -126,7 +165,31 @@ export function SessionScreen({ lang, config, onLangChange, onExit }: Props) {
 
       <p className="spin-hint">{t('spinHint', lang)}</p>
 
+      <button type="button" className="breath-begin" onClick={beginBreathing}>
+        {t('breathBegin', lang)}
+      </button>
+
       <PrayerCard prayer={prayer} lang={lang} />
+
+      {breathing && (
+        <>
+          <BreathGuide
+            lang={lang}
+            inhaleText={inhaleText}
+            exhaleText={exhaleText}
+            inhaleMs={practice.inhaleMs}
+            holdMs={practice.holdMs}
+            exhaleMs={practice.exhaleMs}
+            hapticsOn={practice.hapticsOn}
+            syncToCounter={practice.syncToCounter}
+            bound={practice.bound}
+            onCycleComplete={() => step(1)}
+            onEnd={onBoundEnd}
+            onClose={closeBreathing}
+          />
+          <PracticeNote lang={lang} />
+        </>
+      )}
 
       <div className="controls">
         <button

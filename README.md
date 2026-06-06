@@ -25,8 +25,37 @@ opening each prayer.
 - **Bilingual** — every prayer and label is provided in English and Romanian;
   the choice is remembered between visits.
 - Progress, language, bead count, and prayer choice persist in `localStorage`.
+- **Practice mode** — an optional, reverent layer for the Jesus Prayer:
+  - **Paced breathing** — one calm form expands on the inhale and contracts on
+    the exhale, the prayer's two halves resting on each. Durations are gentle
+    and configurable (4s in / 6s out by default, with an optional hold); it
+    honours the OS *reduce-motion* setting with a still, text-only fallback,
+    holds a screen **wake lock**, and ends softly when its bound (a number of
+    breaths, a duration, or open-ended) is reached. A one-time, dismissible
+    pastoral note appears on first use. Optionally advances the rope one knot
+    per completed breath.
+  - **Ambient sound** — bundled, gapless-looping ison/drone and chant beds with
+    an independent per-layer volume mixer, plus an optional soft tap on each
+    completed circuit. All offline; played via the Web Audio API (no library).
+  - All of it defaults **off** and is configured in the *Breath & sound* panel;
+    nothing is gamified — no streaks, scores, or notifications.
 - **Installable PWA** — a web app manifest + service worker (Workbox) make it
   installable to the home screen and fully usable offline.
+
+### Audio assets
+
+The ambient layers live in `public/audio/` (precached by the service worker for
+offline use). The committed files are tiny **synthesized placeholders** — drop
+real, royalty-free recordings in under the same names to replace them:
+
+| File               | Role                         | Format / notes               |
+| ------------------ | ---------------------------- | ---------------------------- |
+| `ison-drone.wav`   | low ison / drone, loops      | seamless loop, 44.1 kHz mono |
+| `chant.wav`        | soft chant bed, loops        | seamless loop, 44.1 kHz mono |
+| `semantron.wav`    | short tap, one-shot per knot | ~300 ms, 44.1 kHz mono       |
+
+WAV or OGG both work (`decodeAudioData`). Regenerate the placeholders with
+`node scripts/gen-audio.mjs`.
 
 ## Tech stack
 

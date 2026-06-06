@@ -1,0 +1,269 @@
+/* ─────────────────────────────────────────────────────────────────────
+   Practice: the breath-and-sound settings panel and the breathing guide.
+   Styled to sit quietly within the prayer-book leaf, and — for the live
+   breathing session — to dim the leaf and rest a single calm form upon it.
+   ───────────────────────────────────────────────────────────────────── */
+
+/* ── Settings panel ─────────────────────────────────────────────────── */
+.practice-group {
+  margin-top: var(--space-5);
+}
+.practice-group:first-of-type {
+  margin-top: var(--space-2);
+}
+.practice-label {
+  display: block;
+  margin-bottom: var(--space-2);
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.14em;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+}
+.practice-sub {
+  margin: 0 0 var(--space-3);
+  font-style: italic;
+  font-size: 0.92rem;
+  color: var(--ink-faint);
+}
+
+.chip--wide {
+  flex-direction: row;
+  min-width: 0;
+  padding: var(--space-2) var(--space-4);
+}
+
+.practice-custom {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+.practice-field {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 0.92rem;
+  color: var(--ink-soft);
+}
+.practice-field > span {
+  flex: 0 0 auto;
+}
+.practice-field input[type='text'] {
+  flex: 1 1 auto;
+  padding: 0.25rem 0.4rem;
+  border: none;
+  border-bottom: 1px solid var(--ink-faint);
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 1rem;
+}
+.practice-field input:focus {
+  outline: none;
+  border-bottom-color: var(--rubric);
+}
+
+.practice-timings {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+.practice-field--num {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.1rem;
+}
+.practice-field--num input[type='number'] {
+  width: 64px;
+  padding: 0.1rem 0;
+  border: none;
+  border-bottom: 1px solid currentColor;
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 1.4rem;
+  text-align: center;
+  font-feature-settings: 'lnum' 1;
+  -moz-appearance: textfield;
+}
+.practice-field--num input::-webkit-outer-spin-button,
+.practice-field--num input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.practice-field--num input:focus {
+  outline: none;
+}
+.practice-unit {
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.12em;
+  font-size: 0.72rem;
+  color: var(--ink-soft);
+}
+
+.practice-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: var(--space-2) 0;
+  cursor: pointer;
+  color: var(--ink);
+}
+.practice-toggle input[type='checkbox'] {
+  width: 1.1rem;
+  height: 1.1rem;
+  accent-color: var(--rubric);
+}
+
+.mix-layer {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin: var(--space-2) 0;
+}
+.mix-layer .practice-toggle {
+  flex: 0 0 auto;
+  min-width: 9rem;
+  margin: 0;
+}
+.mix-slider {
+  flex: 1 1 auto;
+  accent-color: var(--gold-deep);
+}
+
+/* ── Begin-breathing call ───────────────────────────────────────────── */
+.breath-begin {
+  display: block;
+  margin: var(--space-4) auto var(--space-6);
+  padding: var(--space-2) var(--space-5);
+  border: 1px solid var(--rubric);
+  border-radius: var(--radius);
+  background: var(--rubric-wash);
+  color: var(--rubric);
+  font-variant-caps: small-caps;
+  letter-spacing: 0.06em;
+  font-size: 1.05rem;
+  transition: background var(--dur-fast), color var(--dur-fast);
+}
+.breath-begin:hover {
+  background: var(--rubric);
+  color: var(--paper-bright);
+}
+
+/* ── The breathing guide overlay ────────────────────────────────────── */
+.breath {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-5);
+  padding: var(--space-8);
+  /* The leaf is dimmed; one quiet form rests on a near-dark ground. */
+  background:
+    radial-gradient(ellipse 70% 50% at 50% 50%, rgba(42, 63, 115, 0.32), transparent 70%),
+    rgba(12, 9, 5, 0.92);
+  color: var(--paper);
+  text-align: center;
+  animation: breath-fade var(--dur-slow) var(--ease-out-quint) both;
+}
+@keyframes breath-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.breath__halo {
+  display: grid;
+  place-items: center;
+  width: min(62vw, 16rem);
+  height: min(62vw, 16rem);
+}
+.breath__form {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  transform: scale(0.6);
+  will-change: transform;
+  background:
+    radial-gradient(circle at 50% 42%, var(--gold-pale) 0%, rgba(213, 173, 77, 0.5) 38%, transparent 70%);
+  box-shadow: 0 0 60px 12px rgba(213, 173, 77, 0.18);
+}
+.breath__form--in {
+  background:
+    radial-gradient(circle at 50% 42%, var(--gold-pale) 0%, rgba(213, 173, 77, 0.55) 40%, transparent 72%);
+}
+.breath__form--out {
+  background:
+    radial-gradient(circle at 50% 50%, rgba(243, 226, 163, 0.7) 0%, rgba(42, 63, 115, 0.35) 45%, transparent 72%);
+}
+
+.breath__phase {
+  margin: 0;
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.28em;
+  font-size: 0.95rem;
+  color: var(--gold-pale);
+}
+.breath__phrase {
+  margin: 0;
+  max-width: 24rem;
+  font-family: var(--font-body);
+  font-size: 1.5rem;
+  line-height: 1.5;
+  color: var(--paper);
+}
+.breath__stop {
+  margin-top: var(--space-4);
+  color: var(--paper-edge);
+}
+
+.breath__end {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-6);
+}
+.breath__amen {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 2rem;
+  color: var(--gold-pale);
+}
+
+/* ── Pastoral note (over the breath overlay, first use only) ─────────── */
+.practice-note {
+  position: fixed;
+  inset: auto var(--space-4) var(--space-6);
+  z-index: 50;
+  max-width: 30rem;
+  margin: 0 auto;
+  padding: var(--space-5);
+  border: 1px solid var(--gold-deep);
+  border-radius: var(--radius);
+  background: var(--paper-bright);
+  color: var(--ink);
+  box-shadow: var(--shadow-page);
+  animation: ink-in var(--dur-slow) var(--ease-out-quint) both;
+}
+.practice-note__title {
+  margin: 0 0 var(--space-2);
+  font-variant-caps: small-caps;
+  letter-spacing: 0.06em;
+  font-size: 1.2rem;
+  color: var(--rubric);
+}
+.practice-note__body {
+  margin: 0 0 var(--space-4);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .breath__phrase {
+    /* The form is not rendered under reduced motion; lift the phrase. */
+    font-size: 1.7rem;
+  }
+}
