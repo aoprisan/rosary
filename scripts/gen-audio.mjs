@@ -5,7 +5,11 @@
 //
 // Loop seamlessness: the looping beds are 8 s long and use only frequencies
 // f with f*8 ∈ ℤ, so the waveform completes whole cycles over the buffer and
-// AudioBufferSourceNode{loop:true} joins end→start with no click.
+// AudioBufferSourceNode{loop:true} joins end→start with no click. Every
+// modulator (swell, beat, vibrato) is likewise whole-cycle over 8 s, and
+// vibrato is done as phase modulation whose index returns to 0 at the seam —
+// so the beds stay click-free despite the extra movement. The beds are kept
+// strictly periodic (no noise); only the one-shot semantron uses noise.
 
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -39,7 +43,8 @@ function wav(samples) {
   return buf;
 }
 
-const sin = (f, t) => Math.sin(2 * Math.PI * f * t);
+const TAU = 2 * Math.PI;
+const sin = (f, t, ph = 0) => Math.sin(TAU * f * t + ph);
 const make = (dur, fn) => {
   const n = Math.round(dur * SR);
   const out = new Float32Array(n);
@@ -47,23 +52,52 @@ const make = (dur, fn) => {
   return out;
 };
 
-// Ison / drone — a low fundamental with two quiet partials and a slow swell.
-const F0 = 110.25; // 110.25 * 8 = 882 (whole cycles)
+/** Additive voice: a fundamental f0 with the given per-harmonic gains. */
+const voice = (f0, t, gains) => {
+  let s = 0;
+  for (let i = 0; i < gains.length; i++) s += gains[i] * sin(f0 * (i + 1), t);
+  return s;
+};
+
+// Ison / drone — a warm low fundamental, organ-like rather than buzzy: the
+// harmonics roll off steeply (1/n²-ish) so the timbre stays round, and two
+// voices a hair apart (110.25 vs 110.0 Hz) beat at 0.25 Hz for a slow chorus
+// shimmer. Both detunes are whole-cycle over 8 s (882, 880), so the loop and
+// every beat partial close cleanly.
+const F0 = 110.25; // 110.25 * 8 = 882
+const GAINS = [0.5, 0.16, 0.08, 0.035, 0.015]; // gentle roll-off → mellow
 const drone = make(8, (t) => {
-  const swell = 0.8 + 0.2 * sin(0.25, t);
-  return swell * (0.2 * sin(F0, t) + 0.1 * sin(2 * F0, t) + 0.05 * sin(3 * F0, t));
+  const swell = 0.85 + 0.15 * sin(0.25, t); // 2 cycles / 8 s
+  return 0.3 * swell * (voice(F0, t, GAINS) + voice(110.0, t, GAINS));
 });
 
-// Chant bed — an airy fifth above the drone, softer and breathier.
+// Chant bed — an airy fifth above the drone with a vocal-ish vibrato and a
+// vowel-leaning formant (2nd/3rd partials lifted). Vibrato is phase modulation
+// at 5 Hz; since 5*8 = 40 the modulation index returns to 0 at the seam, so the
+// movement never breaks the loop. Softer and breathier than the drone.
 const chant = make(8, (t) => {
-  const swell = 0.75 + 0.25 * sin(0.125, t);
-  return swell * (0.12 * sin(F0 * 1.5, t) + 0.08 * sin(3 * F0, t) + 0.05 * sin(F0 * 2, t));
+  const f = F0 * 1.5; // 165.375 Hz (165.375 * 8 = 1323)
+  const ph = 0.6 * sin(5, t); // vibrato, whole-cycle → seamless
+  const tone =
+    0.12 * sin(f, t, ph) +
+    0.1 * sin(2 * f, t, 2 * ph) +
+    0.07 * sin(3 * f, t, 3 * ph) +
+    0.035 * sin(4 * f, t, 4 * ph);
+  const swell = 0.7 + 0.3 * sin(0.125, t); // 1 cycle / 8 s
+  return swell * tone;
 });
 
-// Semantron — a short, soft wooden tap (one-shot, not looped).
-const tap = make(0.3, (t) => {
-  const env = Math.exp(-t * 22);
-  return env * (0.5 * sin(523.25, t) + 0.2 * sin(784, t));
+// Semantron — a dry wooden knock (one-shot, not looped). A broadband noise
+// transient gives the attack that reads as "wood struck", over an inharmonic
+// body at a free-free bar's overtone ratios (1 : 2.76 : 5.40), each partial
+// decaying faster the higher it sits. Noise is fine here: nothing loops.
+const tap = make(0.32, (t) => {
+  const click = 0.45 * Math.exp(-t * 520) * (Math.random() * 2 - 1);
+  const body =
+    0.45 * Math.exp(-t * 32) * sin(440, t) +
+    0.26 * Math.exp(-t * 48) * sin(440 * 2.76, t) +
+    0.12 * Math.exp(-t * 70) * sin(440 * 5.4, t);
+  return 0.85 * (click + body);
 });
 
 writeFileSync(join(outDir, 'ison-drone.wav'), wav(drone));
